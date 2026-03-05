@@ -1,20 +1,58 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Sinen Fitness Club Website
 
-# Run and deploy your AI Studio app
+Gym management system with public website and admin dashboard.
 
-This contains everything you need to run your app locally.
+## Project Structure
 
-View your app in AI Studio: https://ai.studio/apps/1cdc0dbd-2349-4b97-b51b-83bd3d862c6a
+```
+sinen-fitness-club/
+├── Front-end/        # Public-facing website
+│   ├── src/          # Home, Registration pages
+│   └── package.json
+└── Back-end/         # API server + Admin dashboard
+    ├── server.ts     # Express API
+    ├── package.json  # Backend dependencies
+    └── admin/        # Admin dashboard
+        ├── src/      # Dashboard components
+        └── package.json
+```
 
-## Run Locally
+## Setup
 
-**Prerequisites:**  Node.js
+1. Install frontend dependencies:
+```bash
+cd Front-end
+npm install
+```
 
+2. Install backend dependencies:
+```bash
+cd Back-end
+npm install
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+3. Install admin dashboard dependencies:
+```bash
+cd Back-end/admin
+npm install
+```
+
+## Development
+
+Run frontend:
+```bash
+cd Front-end
+npm run dev
+```
+
+Run backend API:
+```bash
+cd Back-end
+npm run dev
+```
+
+Run admin dashboard:
+```bash
+cd Back-end/admin
+npm run dev
+```
