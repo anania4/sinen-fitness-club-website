@@ -22,10 +22,10 @@ function App() {
     <div className="min-h-screen bg-black flex">
       <Sidebar />
       
-      <main className="flex-1 ml-64 flex flex-col">
+      <main className="flex-1 lg:ml-64 flex flex-col">
         <Header onRefresh={handleRefresh} />
         
-        <div className="p-8 max-w-7xl mx-auto w-full">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           <Routes>
             <Route path="/" element={<Dashboard key={refreshTrigger} onRefresh={handleRefresh} />} />
             <Route path="/members" element={<MembersPage />} />

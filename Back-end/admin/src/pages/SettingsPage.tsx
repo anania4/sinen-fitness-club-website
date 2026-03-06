@@ -76,7 +76,7 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-4xl font-black uppercase italic text-white">Settings</h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Settings</h1>
 
       <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10 space-y-6">
         <div>

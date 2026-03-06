@@ -11,8 +11,8 @@ export const Header: React.FC<Props> = ({ onRefresh }) => {
 
   return (
     <>
-      <header className="h-20 bg-zinc-900/50 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-10">
-        <div className="flex items-center gap-4 bg-black/50 px-4 py-2 rounded-2xl w-96 border border-white/10">
+      <header className="bg-zinc-900/50 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30">
+        <div className="hidden md:flex items-center gap-4 bg-black/50 px-4 py-2 rounded-2xl flex-1 max-w-md border border-white/10">
           <Search className="w-5 h-5 text-gray-500" />
           <input 
             type="text" 
@@ -21,22 +21,23 @@ export const Header: React.FC<Props> = ({ onRefresh }) => {
           />
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6 ml-auto">
           <button className="text-gray-400 hover:text-white relative transition-colors">
-            <Bell className="w-6 h-6" />
+            <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 border-2 border-zinc-900 rounded-full text-[10px] text-black flex items-center justify-center font-black">
               3
             </span>
           </button>
-          <button className="text-gray-400 hover:text-white transition-colors">
+          <button className="hidden sm:block text-gray-400 hover:text-white transition-colors">
             <HelpCircle className="w-6 h-6" />
           </button>
-          <div className="h-8 w-[1px] bg-white/10 mx-2" />
+          <div className="hidden sm:block h-8 w-[1px] bg-white/10 mx-2" />
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-3 rounded-full text-sm font-black uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 active:scale-95"
+            className="bg-orange-500 hover:bg-orange-600 text-black px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 active:scale-95"
           >
-            + New Member
+            <span className="hidden sm:inline">+ New Member</span>
+            <span className="sm:hidden">+ Member</span>
           </button>
         </div>
       </header>

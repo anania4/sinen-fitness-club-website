@@ -49,7 +49,7 @@ export const TelegramPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-4xl font-black uppercase italic text-white">Telegram Reminders</h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Telegram Reminders</h1>
 
       {!configured && (
         <div className="bg-orange-500/10 border border-orange-500/30 rounded-[2rem] p-6">

@@ -65,14 +65,14 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">Dashboard Overview</h2>
-        <p className="text-gray-500 font-medium">Welcome back! Here's what's happening at your gym today.</p>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic tracking-tighter text-white">Dashboard Overview</h2>
+        <p className="text-sm sm:text-base text-gray-500 font-medium">Welcome back! Here's what's happening at your gym today.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard 
           title="Total Members" 
           value={stats?.totalMembers || 0} 
@@ -104,13 +104,13 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
           <RevenueChart data={revenue} />
           <ExpiringMembersTable members={expiringMembers} onRefresh={fetchData} />
         </div>
         
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <LeadsTable leads={leads} onRefresh={fetchData} />
           <RecentPaymentsTable payments={payments} />
         </div>
