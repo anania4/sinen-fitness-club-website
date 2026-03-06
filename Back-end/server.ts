@@ -57,6 +57,13 @@ db.exec(`
     time TEXT NOT NULL,
     FOREIGN KEY (member_id) REFERENCES members(id)
   );
+
+  CREATE TABLE IF NOT EXISTS team (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL,
+    fitness_group TEXT NOT NULL
+  );
 `);
 
 // Seed data if empty
@@ -96,6 +103,12 @@ if (memberCount.count === 0) {
   insertAttendance.run(1, "Alex Johnson", "2026-03-05", "08:30");
   insertAttendance.run(2, "Sarah Miller", "2026-03-05", "09:15");
   insertAttendance.run(3, "Mike Ross", "2026-03-05", "17:45");
+
+  const insertTeam = db.prepare("INSERT INTO team (name, role, fitness_group) VALUES (?, ?, ?)");
+  insertTeam.run("Michael Chen", "Head Trainer", "Strength & Conditioning");
+  insertTeam.run("Sarah Williams", "Yoga Instructor", "Flexibility & Wellness");
+  insertTeam.run("David Martinez", "Personal Trainer", "Weight Loss");
+  insertTeam.run("Emma Thompson", "Nutritionist", "Diet & Nutrition");
 }
 
 async function startServer() {
@@ -247,6 +260,31 @@ async function startServer() {
     db.prepare("DELETE FROM leads").run();
     db.prepare("DELETE FROM payments").run();
     db.prepare("DELETE FROM attendance").run();
+    res.json({ success: true });
+  });
+
+  // Team Routes
+  app.get("/api/team", (req, res) => {
+    const team = db.prepare("SELECT * FROM team ORDER BY name ASC").all();
+    res.json(team);
+  });
+
+  app.post("/api/team", (req, res) => {
+    const { name, role, fitness_group } = req.body;
+    const info = db.prepare("INSERT INTO team (name, role, fitness_group) VALUES (?, ?, ?)").run(name, role, fitness_group);
+    res.json({ id: info.lastInsertRowid });
+  });
+
+  app.patch("/api/team/:id", (req, res) => {
+    const { id } = req.params;
+    const { name, role, fitness_group } = req.body;
+    db.prepare("UPDATE team SET name = ?, role = ?, fitness_group = ? WHERE id = ?").run(name, role, fitness_group, id);
+    res.json({ success: true });
+  });
+
+  app.delete("/api/team/:id", (req, res) => {
+    const { id } = req.params;
+    db.prepare("DELETE FROM team WHERE id = ?").run(id);
     res.json({ success: true });
   });
 

@@ -15,18 +15,16 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, de
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
+      className="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/10 hover:border-orange-500/50 transition-all group relative overflow-hidden"
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl ${color} bg-opacity-10`}>
-          <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
-        </div>
-        <div className="text-right">
-          <p className="text-sm font-medium text-slate-500 uppercase tracking-wider">{title}</p>
-          <h3 className="text-3xl font-bold text-slate-900 mt-1">{value}</h3>
-        </div>
+      <div className="absolute -right-4 -bottom-4 text-orange-500/10 group-hover:scale-110 transition-transform">
+        <Icon size={80} />
       </div>
-      <p className="text-xs text-slate-400 font-medium">{description}</p>
+      <div className="relative z-10">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-2">{title}</p>
+        <h3 className="text-5xl font-black italic text-orange-500 mb-2">{value}</h3>
+        <p className="text-xs text-gray-600 font-medium">{description}</p>
+      </div>
     </motion.div>
   );
 };

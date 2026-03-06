@@ -16,16 +16,16 @@ interface Props {
 
 export const RevenueChart: React.FC<Props> = ({ data }) => {
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-[400px] flex flex-col">
+    <div className="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/10 h-[400px] flex flex-col">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h3 className="font-bold text-slate-900">Monthly Revenue</h3>
-          <p className="text-xs text-slate-400 font-medium">Revenue trend for the last 6 months</p>
+          <h3 className="font-black text-white uppercase tracking-tight text-xl">Monthly Revenue</h3>
+          <p className="text-xs text-gray-500 font-medium">Revenue trend for the last 6 months</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-orange-500" />
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Revenue</span>
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Revenue</span>
           </div>
         </div>
       </div>
@@ -35,32 +35,34 @@ export const RevenueChart: React.FC<Props> = ({ data }) => {
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f97316" stopOpacity={0.1}/>
+                <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
                 <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#27272a" />
             <XAxis 
               dataKey="month" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: '#94a3b8', fontSize: 12 }}
+              tick={{ fill: '#71717a', fontSize: 12, fontWeight: 'bold' }}
               dy={10}
             />
             <YAxis 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: '#94a3b8', fontSize: 12 }}
-              tickFormatter={(value) => `$${value}`}
+              tick={{ fill: '#71717a', fontSize: 12, fontWeight: 'bold' }}
+              tickFormatter={(value) => `${value} ETB`}
             />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: '#fff', 
-                borderRadius: '12px', 
-                border: '1px solid #f1f5f9',
-                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                backgroundColor: '#18181b', 
+                borderRadius: '16px', 
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.5)',
+                color: '#fff'
               }}
               itemStyle={{ color: '#f97316', fontWeight: 'bold' }}
+              labelStyle={{ color: '#a1a1aa', fontWeight: 'bold' }}
             />
             <Area 
               type="monotone" 

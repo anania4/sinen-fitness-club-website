@@ -59,28 +59,28 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            className="bg-zinc-900 rounded-[2rem] shadow-xl w-full max-w-md overflow-hidden border border-white/10"
           >
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">Record Payment</h3>
-              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white uppercase">Record Payment</h3>
+              <button onClick={onClose} className="text-gray-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Member</label>
+                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Member</label>
                 <select
                   required
                   value={memberName}
                   onChange={(e) => setMemberName(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 >
                   <option value="">Select Member</option>
                   {members.map(m => (
@@ -90,24 +90,24 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Amount ($)</label>
+                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Amount (ETB)</label>
                 <input
                   required
                   type="number"
                   step="0.01"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Payment Method</label>
+                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Payment Method</label>
                 <select
                   value={method}
                   onChange={(e) => setMethod(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 >
                   <option>Credit Card</option>
                   <option>Cash</option>
@@ -117,13 +117,13 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Date</label>
+                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Date</label>
                 <input
                   required
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 />
               </div>
               
@@ -131,16 +131,16 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-full border border-white/10 text-white font-bold uppercase tracking-wider hover:bg-white/5 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 shadow-lg shadow-orange-500/20"
+                  className="flex-1 px-4 py-3 rounded-full bg-orange-500 text-black font-black uppercase tracking-wider hover:bg-orange-600 transition-colors disabled:opacity-50 shadow-lg shadow-orange-500/20"
                 >
-                  {loading ? 'Recording...' : 'Record Payment'}
+                  {loading ? 'Recording...' : 'Record'}
                 </button>
               </div>
             </form>

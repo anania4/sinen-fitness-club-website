@@ -1,75 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Member } from '../types';
-import { Search, Filter, MoreVertical, Mail, Phone, Calendar, Trash2, Edit2, UserPlus, Download } from 'lucide-react';
-import { EditMemberModal } from '../components/EditMemberModal';
+import { UserPlus, Edit, Trash2, Search } from 'lucide-react';
 import { NewMemberModal } from '../components/NewMemberModal';
+import { EditMemberModal } from '../components/EditMemberModal';
 
 export const MembersPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const initialPlan = searchParams.get('plan') || '';
   const [members, setMembers] = useState<Member[]>([]);
+  const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(initialPlan);
-  const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
-  const fetchMembers = () => {
-    fetch('/api/members')
-      .then(res => res.json())
-      .then(data => {
-        setMembers(data);
-        setLoading(false);
-      });
+  const fetchMembers = async () => {
+    try {
+      const res = await fetch('/api/members');
+      const data = await res.json();
+      setMembers(data);
+      setFilteredMembers(data);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchMembers();
   }, []);
 
-  const filteredMembers = members.filter(m => 
-    m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.plan.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    const filtered = members.filter(m => 
+      m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.plan.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMembers(filtered);
+  }, [searchTerm, members]);
 
-  const deleteMember = async (id: number) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this member?')) return;
     try {
-      const res = await fetch(`/api/members/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setMembers(members.filter(m => m.id !== id));
-      }
+      await fetch(`/api/members/${id}`, { method: 'DELETE' });
+      fetchMembers();
     } catch (error) {
       console.error('Error deleting member:', error);
     }
   };
 
   const handleEdit = (member: Member) => {
-    setEditingMember(member);
-    setIsEditModalOpen(true);
-  };
-
-  const exportToCSV = () => {
-    const headers = ['ID', 'Name', 'Plan', 'Status', 'Expiry Date'];
-    const rows = filteredMembers.map(m => [
-      `#MEM-${m.id.toString().padStart(4, '0')}`,
-      m.name,
-      m.plan,
-      m.status,
-      m.expiry_date
-    ]);
-    
-    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `gym_members_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setSelectedMember(member);
+    setShowEditModal(true);
   };
 
   if (loading) {
@@ -81,100 +62,67 @@ export const MembersPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Members Management</h2>
-          <p className="text-slate-500">View and manage all registered gym members.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setIsNewModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Member
-          </button>
-          <button 
-            onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Export List
-          </button>
-        </div>
+        <h1 className="text-4xl font-black uppercase italic text-white">Members</h1>
+        <button
+          onClick={() => setShowNewModal(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
+        >
+          <UserPlus className="w-5 h-5" />
+          Add Member
+        </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-50">
-          <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input 
-              type="text"
-              placeholder="Search by name or plan..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm"
-            />
-          </div>
-        </div>
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Search members..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 rounded-2xl border border-white/10 bg-zinc-900 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+        />
+      </div>
 
+      <div className="bg-zinc-900 rounded-[2rem] border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Member</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Expiry Date</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+          <table className="w-full">
+            <thead className="bg-black/50 border-b border-white/10">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Plan</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Expiry Date</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-white/10">
               {filteredMembers.map((member) => (
-                <tr key={member.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={member.id} className="hover:bg-white/5 transition-colors">
+                  <td className="px-6 py-4 text-white font-bold">{member.name}</td>
+                  <td className="px-6 py-4 text-gray-400">{member.plan}</td>
+                  <td className="px-6 py-4 text-gray-400">{new Date(member.expiry_date).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-sm font-bold text-orange-600">
-                        {member.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-900">{member.name}</p>
-                        <p className="text-xs text-slate-500">ID: #MEM-{member.id.toString().padStart(4, '0')}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-slate-600 font-medium">{member.plan}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
-                      member.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                      member.status === 'active' ? 'bg-orange-500/20 text-orange-500' : 'bg-gray-500/20 text-gray-500'
                     }`}>
                       {member.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      {member.expiry_date}
-                    </div>
-                  </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
+                      <button
                         onClick={() => handleEdit(member)}
-                        className="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
-                        title="Edit Member"
+                        className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-500/10 rounded-lg transition-colors"
                       >
-                        <Edit2 className="w-5 h-5" />
+                        <Edit className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => deleteMember(member.id)}
-                        className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                        title="Delete Member"
+                      <button
+                        onClick={() => handleDelete(member.id)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -185,18 +133,8 @@ export const MembersPage: React.FC = () => {
         </div>
       </div>
 
-      <EditMemberModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-        onSuccess={fetchMembers} 
-        member={editingMember} 
-      />
-
-      <NewMemberModal
-        isOpen={isNewModalOpen}
-        onClose={() => setIsNewModalOpen(false)}
-        onSuccess={fetchMembers}
-      />
+      <NewMemberModal isOpen={showNewModal} onClose={() => setShowNewModal(false)} onSuccess={fetchMembers} />
+      <EditMemberModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} onSuccess={fetchMembers} member={selectedMember} />
     </div>
   );
 };

@@ -9,28 +9,32 @@ import {
   Send, 
   Settings,
   Dumbbell,
-  Clock
+  Users as UsersIcon
 } from 'lucide-react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
   { icon: Users, label: 'Members', path: '/members' },
-  { icon: Clock, label: 'Attendance', path: '/attendance' },
   { icon: UserPlus, label: 'Leads', path: '/leads' },
-  { icon: Calendar, label: 'Plans', path: '/plans' },
+  { icon: Dumbbell, label: 'Plans', path: '/plans' },
   { icon: CreditCard, label: 'Payments', path: '/payments' },
+  { icon: UsersIcon, label: 'Sinen Team', path: '/team' },
   { icon: Send, label: 'Telegram Reminders', path: '/telegram' },
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
 export const Sidebar: React.FC = () => {
   return (
-    <aside className="w-64 bg-black text-white h-screen fixed left-0 top-0 flex flex-col border-r border-white/5">
+    <aside className="w-64 bg-zinc-900 text-white h-screen fixed left-0 top-0 flex flex-col border-r border-white/10">
       <div className="p-6 flex items-center gap-3">
-        <div className="bg-orange-500 p-2 rounded-lg">
-          <Dumbbell className="w-6 h-6 text-white" />
+        <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden">
+          <img src="/images/sinen_logo.png" alt="Sinen Fitness Logo" className="w-full h-full object-contain" />
         </div>
-        <h1 className="text-xl font-bold tracking-tight">GymFlow</h1>
+        <div>
+          <h1 className="text-xl font-black tracking-tighter uppercase italic">
+            Sinen <span className="text-orange-500">Admin</span>
+          </h1>
+        </div>
       </div>
       
       <nav className="flex-1 px-4 py-4 space-y-1">
@@ -38,26 +42,26 @@ export const Sidebar: React.FC = () => {
           <NavLink
             key={item.label}
             to={item.path}
-            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+            className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-sm ${
               isActive 
-                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' 
-                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' 
+                : 'text-gray-400 hover:bg-white/5 hover:text-white'
             }`}
           >
             <item.icon className="w-5 h-5" />
-            <span className="font-medium">{item.label}</span>
+            <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
       
-      <div className="p-6 border-t border-white/5">
+      <div className="p-6 border-t border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center font-bold text-orange-500">
-            JD
+          <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center font-black text-black text-sm">
+            AD
           </div>
           <div>
-            <p className="text-sm font-semibold">John Doe</p>
-            <p className="text-xs text-slate-500">Gym Owner</p>
+            <p className="text-sm font-bold">Admin</p>
+            <p className="text-xs text-gray-500">Gym Manager</p>
           </div>
         </div>
       </div>

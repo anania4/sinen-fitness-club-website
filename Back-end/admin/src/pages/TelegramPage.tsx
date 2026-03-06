@@ -1,207 +1,134 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Bell, MessageSquare, Shield, Settings, CheckCircle, AlertCircle } from 'lucide-react';
+import { Send, MessageSquare, Users, Settings as SettingsIcon } from 'lucide-react';
+
+interface TelegramSettings {
+  botToken: string;
+  chatId: string;
+  reminderDays: string;
+}
 
 export const TelegramPage: React.FC = () => {
-  const [botToken, setBotToken] = useState('');
-  const [chatId, setChatId] = useState('');
-  const [isEnabled, setIsEnabled] = useState(true);
-  const [rules, setRules] = useState([
-    { key: 'rule_lead_alert', label: 'New Lead Alert', desc: 'Notify when a new trial request is received', active: true },
-    { key: 'rule_expiry_warning', label: 'Expiry Warning (3 Days)', desc: 'Notify 3 days before membership expires', active: true },
-    { key: 'rule_payment_success', label: 'Payment Success', desc: 'Notify when a payment is processed', active: false },
-    { key: 'rule_daily_summary', label: 'Daily Summary', desc: 'Send daily gym activity overview at 9 PM', active: true },
-  ]);
-  const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<TelegramSettings>({ botToken: '', chatId: '', reminderDays: '7' });
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [configured, setConfigured] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings')
-      .then(res => res.json())
-      .then(data => {
-        setBotToken(data.telegram_bot_token || '');
-        setChatId(data.telegram_chat_id || '');
-        setIsEnabled(data.telegram_enabled === 'true');
-        
-        setRules(prev => prev.map(rule => ({
-          ...rule,
-          active: data[rule.key] === 'true'
-        })));
-        
-        setLoading(false);
-      });
+    fetchSettings();
   }, []);
 
-  const handleSave = async () => {
-    setSaving(true);
-    const settings: any = { 
-      telegram_bot_token: botToken, 
-      telegram_chat_id: chatId, 
-      telegram_enabled: String(isEnabled) 
-    };
-    rules.forEach(rule => {
-      settings[rule.key] = String(rule.active);
-    });
-
+  const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+      const res = await fetch('/api/settings');
+      const data = await res.json();
+      setSettings({
+        botToken: data.telegramBotToken || '',
+        chatId: data.telegramChatId || '',
+        reminderDays: data.reminderDays || '7'
       });
-      if (res.ok) alert('Configuration saved successfully!');
+      setConfigured(!!(data.telegramBotToken && data.telegramChatId));
     } catch (error) {
-      console.error('Error saving telegram config:', error);
-    } finally {
-      setSaving(false);
+      console.error('Error fetching settings:', error);
     }
   };
 
-  const toggleRule = (key: string) => {
-    setRules(prev => prev.map(r => r.key === key ? { ...r, active: !r.active } : r));
+  const handleSendTest = async () => {
+    if (!message.trim()) return;
+    setSending(true);
+    try {
+      // This would call a Telegram API endpoint - placeholder for now
+      alert('Test message sent! (Note: Telegram integration needs to be implemented on backend)');
+      setMessage('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message');
+    } finally {
+      setSending(false);
+    }
   };
-
-  const handleTest = async () => {
-    setTesting(true);
-    // Mock test
-    setTimeout(() => {
-      alert('Test message sent successfully! Please check your Telegram.');
-      setTesting(false);
-    }, 1500);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Telegram Reminders</h2>
-          <p className="text-slate-500">Automate membership expiry alerts and lead notifications.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className={`px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold uppercase ${
-            isEnabled ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-          }`}>
-            <div className={`w-2 h-2 rounded-full ${isEnabled ? 'bg-emerald-500' : 'bg-rose-500'} animate-pulse`} />
-            {isEnabled ? 'Service Active' : 'Service Disabled'}
+    <div className="space-y-6">
+      <h1 className="text-4xl font-black uppercase italic text-white">Telegram Reminders</h1>
+
+      {!configured && (
+        <div className="bg-orange-500/10 border border-orange-500/30 rounded-[2rem] p-6">
+          <div className="flex items-start gap-3">
+            <SettingsIcon className="w-6 h-6 text-orange-500 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="text-lg font-black text-orange-500 uppercase mb-2">Configuration Required</h3>
+              <p className="text-gray-400 text-sm mb-3">
+                Please configure your Telegram bot token and chat ID in Settings to enable reminders.
+              </p>
+              <a
+                href="/settings"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-black font-bold uppercase rounded-full hover:bg-orange-600 transition-colors text-sm"
+              >
+                Go to Settings
+              </a>
+            </div>
           </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10">
+          <div className="flex items-center gap-3 mb-2">
+            <Users className="w-6 h-6 text-orange-500" />
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Reminder Days</h3>
+          </div>
+          <p className="text-3xl font-black text-white">{settings.reminderDays}</p>
+          <p className="text-xs text-gray-500 mt-1">Days before expiry</p>
+        </div>
+
+        <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10">
+          <div className="flex items-center gap-3 mb-2">
+            <MessageSquare className="w-6 h-6 text-orange-500" />
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Bot Status</h3>
+          </div>
+          <p className="text-xl font-black text-white">{configured ? 'Configured' : 'Not Set'}</p>
+          <p className="text-xs text-gray-500 mt-1">{configured ? 'Ready to send' : 'Configure in settings'}</p>
+        </div>
+
+        <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10">
+          <div className="flex items-center gap-3 mb-2">
+            <Send className="w-6 h-6 text-orange-500" />
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Auto Reminders</h3>
+          </div>
+          <p className="text-xl font-black text-white">Enabled</p>
+          <p className="text-xs text-gray-500 mt-1">Automatic notifications</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-blue-50 rounded-2xl">
-                <Send className="w-6 h-6 text-blue-500" />
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900">Bot Configuration</h3>
-                <p className="text-xs text-slate-400">Connect your gym's Telegram bot.</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Bot API Token</label>
-                <div className="relative">
-                  <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input 
-                    type="password"
-                    value={botToken}
-                    onChange={(e) => setBotToken(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm font-mono"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Admin Chat ID</label>
-                <div className="relative">
-                  <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input 
-                    type="text"
-                    value={chatId}
-                    onChange={(e) => setChatId(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm font-mono"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 flex gap-3">
-              <button 
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 py-3 bg-orange-500 text-white font-bold rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50"
-              >
-                {saving ? 'Saving...' : 'Save Configuration'}
-              </button>
-              <button 
-                onClick={handleTest}
-                disabled={testing}
-                className="px-6 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-colors disabled:opacity-50"
-              >
-                {testing ? 'Testing...' : 'Test Connection'}
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-6">Notification Rules</h3>
-            <div className="space-y-4">
-              {rules.map((rule) => (
-                <div key={rule.key} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">{rule.label}</p>
-                    <p className="text-xs text-slate-500">{rule.desc}</p>
-                  </div>
-                  <button 
-                    onClick={() => toggleRule(rule.key)}
-                    className={`w-12 h-6 rounded-full transition-colors relative ${rule.active ? 'bg-orange-500' : 'bg-slate-300'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${rule.active ? 'right-1' : 'left-1'}`} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+      <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10">
+        <h2 className="text-xl font-black text-white uppercase mb-4">Send Test Message</h2>
+        <div className="space-y-4">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={4}
+            placeholder="Type your test message here..."
+            disabled={!configured}
+            className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all resize-none disabled:opacity-50"
+          />
+          <button
+            onClick={handleSendTest}
+            disabled={!configured || sending || !message.trim()}
+            className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors disabled:opacity-50 shadow-lg shadow-orange-500/20"
+          >
+            <Send className="w-5 h-5" />
+            {sending ? 'Sending...' : 'Send Test'}
+          </button>
         </div>
+      </div>
 
-        <div className="space-y-8">
-          <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4">Service Status</h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm">
-                <CheckCircle className="w-5 h-5 text-emerald-500" />
-                <span className="text-slate-600">Bot API Connected</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <CheckCircle className="w-5 h-5 text-emerald-500" />
-                <span className="text-slate-600">Webhook Active</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <AlertCircle className="w-5 h-5 text-amber-500" />
-                <span className="text-slate-600">Rate Limit: 20/min</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-orange-500 p-8 rounded-3xl shadow-lg shadow-orange-500/20 text-white">
-            <h3 className="font-bold mb-2">Need Help?</h3>
-            <p className="text-xs text-white/80 mb-4 leading-relaxed">
-              To get your Chat ID, message @userinfobot on Telegram. To create a bot, use @BotFather.
-            </p>
-            <button className="w-full py-2.5 bg-white/20 hover:bg-white/30 rounded-xl text-xs font-bold transition-colors">
-              Read Documentation
-            </button>
-          </div>
+      <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10">
+        <h2 className="text-xl font-black text-white uppercase mb-4">How It Works</h2>
+        <div className="space-y-3 text-gray-400 text-sm">
+          <p>• Automatic reminders are sent to members {settings.reminderDays} days before their membership expires</p>
+          <p>• Messages are sent via Telegram bot to the configured chat</p>
+          <p>• Configure your bot token and chat ID in Settings to enable this feature</p>
+          <p>• Test your configuration using the form above</p>
         </div>
       </div>
     </div>

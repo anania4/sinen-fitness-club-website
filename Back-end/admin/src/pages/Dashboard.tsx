@@ -67,8 +67,8 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Dashboard Overview</h2>
-        <p className="text-slate-500">Welcome back! Here's what's happening at your gym today.</p>
+        <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">Dashboard Overview</h2>
+        <p className="text-gray-500 font-medium">Welcome back! Here's what's happening at your gym today.</p>
       </div>
 
       {/* Stats Grid */}
@@ -78,7 +78,7 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
           value={stats?.totalMembers || 0} 
           icon={Users} 
           description="Total registered members"
-          color="bg-indigo-500"
+          color="bg-orange-500"
         />
         <StatCard 
           title="Active Members" 
@@ -92,14 +92,14 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
           value={stats?.expiringSoon || 0} 
           icon={Clock} 
           description="Expiring in next 14 days"
-          color="bg-amber-500"
+          color="bg-orange-500"
         />
         <StatCard 
           title="New Leads" 
           value={stats?.newLeads || 0} 
           icon={UserPlus} 
           description="Pending trial requests"
-          color="bg-rose-500"
+          color="bg-orange-500"
         />
       </div>
 
