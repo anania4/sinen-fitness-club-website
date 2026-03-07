@@ -796,8 +796,8 @@ function Home() {
       <footer className="py-20 border-t border-white/5 bg-black relative z-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-              <Dumbbell className="text-black w-5 h-5" />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+              <img src="/images/sinen_logo.png" alt="Sinen Fitness Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tighter uppercase italic">
               Sinen <span className="text-orange-500">Fitness</span>
