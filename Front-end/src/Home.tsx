@@ -10,30 +10,30 @@ const services = [
     title: 'Aerobics', 
     desc: 'High-energy group participation with music that moves you.',
     fullDesc: 'Our aerobics sessions are designed to boost your cardiovascular health while having fun. We use a mix of modern and traditional Ethiopian rhythms to keep the energy high. Sessions typically accommodate 10-30 people, creating a powerful group dynamic that pushes everyone to their best.',
-    img: 'https://images.unsplash.com/photo-1518611012118-296072bb5fe7?auto=format&fit=crop&q=80&w=1200',
+    img: '/images/sinen_aerobic.png',
     gallery: [
-      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?auto=format&fit=crop&q=80&w=400'
+      '/images/sinen_aerobic.png',
+      '/images/sinen_aerobic.png'
     ]
   },
   { 
     title: 'Strength', 
     desc: 'Professional weight training with modern equipment.',
     fullDesc: 'Build real power with our comprehensive strength training program. We provide high-quality dumbbells, benches, cable machines, and squat racks. Our trainers focus on proper form and progressive overload to ensure you see consistent gains in muscle mass and functional strength.',
-    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1200',
+    img: '/images/sinen_strength.jpg',
     gallery: [
-      'https://images.unsplash.com/photo-1581009146145-b5ef03a7403f?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&q=80&w=400'
+      '/images/sinen_strength.jpg',
+      '/images/sinen_strength.jpg'
     ]
   },
   { 
     title: 'Boxing', 
     desc: 'Functional cardio power. Boxing bags, pads, and HIIT.',
     fullDesc: 'Unleash your inner warrior with our boxing program. It combines technical skill-building with intense cardio. You will work on heavy bags, speed bags, and pad work with trainers. It is the ultimate way to burn calories, improve coordination, and build mental toughness.',
-    img: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&q=80&w=1200',
+    img: '/images/sinen_box.png',
     gallery: [
-      'https://images.unsplash.com/photo-1599058917233-57c0e6808f4c?auto=format&fit=crop&q=80&w=400',
-      'https://images.unsplash.com/photo-1552072805-2a9039d00e57?auto=format&fit=crop&q=80&w=400'
+      '/images/sinen_box.png',
+      '/images/sinen_box.png'
     ]
   }
 ];
@@ -393,10 +393,10 @@ function Home() {
             <div className="grid grid-cols-2 gap-4 md:gap-8">
               <div className="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group">
                 <div className="absolute -right-4 -bottom-4 text-orange-500/10 group-hover:scale-110 transition-transform">
-                  <Dumbbell size={80} />
+                  <Users size={80} />
                 </div>
-                <div className="text-3xl md:text-4xl font-black text-orange-500 mb-2 italic relative z-10">200 ETB</div>
-                <p className="text-[10px] uppercase tracking-widest font-black text-gray-500 relative z-10">Registration Fee</p>
+                <div className="text-3xl md:text-4xl font-black text-orange-500 mb-2 italic relative z-10">10+</div>
+                <p className="text-[10px] uppercase tracking-widest font-black text-gray-500 relative z-10">Expert Coaches</p>
               </div>
               <div className="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group">
                 <div className="absolute -right-4 -bottom-4 text-orange-500/10 group-hover:scale-110 transition-transform">
@@ -410,10 +410,9 @@ function Home() {
           <div className="relative w-full lg:w-1/2 order-1 lg:order-2">
             <div className="relative aspect-[4/5] md:aspect-[3/4] rounded-[3rem] md:rounded-[4rem] overflow-hidden border-4 md:border-8 border-zinc-900 shadow-2xl">
               <img 
-                src="https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&q=80&w=1000" 
-                alt="Gym Mission" 
+                src="/images/sinen_more.jpg" 
+                alt="Sinen Fitness Club" 
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
-                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>
@@ -498,20 +497,20 @@ function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-6 auto-rows-[150px] md:auto-rows-[300px]">
             <div className="gallery-item col-span-2 md:col-span-8 md:row-span-2 rounded-2xl md:rounded-[3rem] overflow-hidden relative group">
-              <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80&w=1200" alt="Gym 1" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+              <img src="/images/1.jpg" alt="Sinen Gym 1" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
             </div>
             <div className="gallery-item col-span-1 md:col-span-4 md:row-span-1 rounded-2xl md:rounded-[3rem] overflow-hidden relative group">
-              <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=800" alt="Gym 2" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+              <img src="/images/2.jpg" alt="Sinen Gym 2" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
             </div>
             <div className="gallery-item col-span-1 md:col-span-4 md:row-span-2 rounded-2xl md:rounded-[3rem] overflow-hidden relative group">
-              <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&q=80&w=800" alt="Gym 3" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+              <img src="/images/3.jpg" alt="Sinen Gym 3" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
             </div>
             <div className="gallery-item col-span-1 md:col-span-4 md:row-span-1 rounded-2xl md:rounded-[3rem] overflow-hidden relative group">
-              <img src="https://images.unsplash.com/photo-1594882645126-14020914d58d?auto=format&fit=crop&q=80&w=800" alt="Gym 4" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+              <img src="/images/4.jpg" alt="Sinen Gym 4" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
             </div>
             <div className="gallery-item col-span-1 md:col-span-4 md:row-span-1 rounded-2xl md:rounded-[3rem] overflow-hidden relative group">
-              <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&q=80&w=800" alt="Gym 5" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+              <img src="/images/5.jpg" alt="Sinen Gym 5" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
             </div>
           </div>
         </div>
@@ -533,9 +532,9 @@ function Home() {
 
           <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-6 md:gap-12 pb-12 lg:pb-0 snap-x snap-mandatory no-scrollbar">
             {[
-              { name: 'Coach Sinen', role: 'Founder & Head Trainer', specialty: 'Strength & Conditioning', img: 'https://images.unsplash.com/photo-1567013127542-490d757e51fe?auto=format&fit=crop&q=80&w=600' },
-              { name: 'Coach Hana', role: 'Lead Aerobics Instructor', specialty: 'Cardio & Group Energy', img: 'https://images.unsplash.com/photo-1548690312-e3b507d17a12?auto=format&fit=crop&q=80&w=600' },
-              { name: 'Coach Dawit', role: 'Boxing Specialist', specialty: 'Functional Combat', img: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80&w=600' }
+              { name: 'Coach Sami', role: 'Founder & Head Trainer', specialty: 'Strength & Conditioning', img: '/images/coach_sami_1.jpg' },
+              { name: 'Coach Sami', role: 'Lead Aerobics Instructor', specialty: 'Cardio & Group Energy', img: '/images/coach_sami_2.jpg' },
+              { name: 'Coach Sami', role: 'Boxing Specialist', specialty: 'Functional Combat', img: '/images/coach_sami_3.jpg' }
             ].map((member, i) => (
               <div key={i} className="group relative flex-shrink-0 w-[85vw] sm:w-[50vw] lg:w-full snap-center">
                 <div className="aspect-[3/4] rounded-[3rem] overflow-hidden border-4 border-zinc-800 group-hover:border-orange-500 transition-colors duration-500 relative">
@@ -569,26 +568,26 @@ function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {[
               { 
-                quote: "The energy at Sinen is unmatched. I've never felt more motivated to push my limits.", 
-                author: "Abebe K.", 
+                quote: "በሲነን ያለው ጉልበት ተወዳዳሪ የለውም። ገደቤን ለመግፋት ይህን ያህል ተነሳሽነት ተሰምቶኝ አያውቅም።", 
+                author: "ANANIA M.", 
                 role: "Member since 2023",
                 img: "https://picsum.photos/seed/member1/100"
               },
               { 
-                quote: "The group aerobics classes are the highlight of my week. Fun, intense, and effective!", 
-                author: "Selam T.", 
+                quote: "የቡድን ኤሮቢክስ ክፍሎች የሳምንቴ ድምቀት ናቸው። አስደሳች፣ ጠንካራ እና ውጤታማ!", 
+                author: "KALEB K.", 
                 role: "Aerobics Regular",
                 img: "https://picsum.photos/seed/member2/100"
               },
               { 
-                quote: "Best local gym in Addis. The 5th-floor view and the community vibe are incredible.", 
-                author: "Dawit M.", 
+                quote: "በአዲስ አበባ ምርጥ የአካባቢ ጂም። የ5ኛው ፎቅ እይታ እና የማህበረሰብ ስሜት አስደናቂ ናቸው።", 
+                author: "METSI L.", 
                 role: "Strength Athlete",
                 img: "https://picsum.photos/seed/member3/100"
               },
               { 
-                quote: "Accessible fitness that actually works. I've seen real results in just 3 months.", 
-                author: "Hana S.", 
+                quote: "በትክክል የሚሰራ ተደራሽ የአካል ብቃት። በ3 ወራት ውስጥ እውነተኛ ውጤቶችን አይቻለሁ።", 
+                author: "SHIBRE Q.", 
                 role: "Fitness Enthusiast",
                 img: "https://picsum.photos/seed/member4/100"
               }
@@ -782,15 +781,9 @@ function Home() {
                     <Clock className="text-orange-500" />
                   </div>
                   <h4 className="text-3xl font-black uppercase italic mb-6">Open Hours</h4>
-                  <div className="grid grid-cols-2 gap-8">
-                    <div>
-                      <p className="text-orange-500 font-black uppercase tracking-widest text-[10px] mb-2">Mon - Sat</p>
-                      <p className="text-xl font-bold">5:00 AM - 9:00 PM</p>
-                    </div>
-                    <div>
-                      <p className="text-orange-500 font-black uppercase tracking-widest text-[10px] mb-2">Sunday</p>
-                      <p className="text-xl font-bold">6:00 AM - 12:00 PM</p>
-                    </div>
+                  <div>
+                    <p className="text-orange-500 font-black uppercase tracking-widest text-[10px] mb-2">Mon - Sat</p>
+                    <p className="text-xl font-bold">12:00 AM - 3:00 PM ET</p>
                   </div>
                 </div>
               </div>
