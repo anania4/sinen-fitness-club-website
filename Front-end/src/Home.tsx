@@ -325,10 +325,9 @@ function Home() {
         </div>
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1920" 
-            alt="Gym"
+            src="/images/gym_hero.jpg" 
+            alt="Sinen Fitness Club Gym"
             className="hero-image w-full h-full object-cover opacity-40 scale-110"
-            referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
         </div>

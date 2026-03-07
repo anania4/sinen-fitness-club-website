@@ -1,59 +1,75 @@
-# Gym Management System - Backend
+# Sinen Fitness Club - Django REST API
 
-Backend API server for the gym management system.
+## Setup Instructions
 
-## Structure
-
-```
-Back-end/
-├── server.ts          # Express API server
-├── gym.db            # SQLite database
-├── package.json      # Backend dependencies
-└── admin/            # Admin dashboard (separate frontend)
-    ├── src/          # React components
-    ├── package.json  # Frontend dependencies
-    └── vite.config.ts
-```
-
-## Setup
-
-1. Install backend dependencies:
+1. Install dependencies:
 ```bash
-npm install
+cd Back-end
+pip install -r requirements.txt
 ```
 
-2. Install admin dashboard dependencies:
+2. Run migrations:
 ```bash
-cd admin
-npm install
-cd ..
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-3. Create `.env` file (copy from `.env.example`)
-
-## Development
-
-Run the API server:
+3. Create a superuser (optional):
 ```bash
-npm run dev
+python manage.py createsuperuser
 ```
 
-Run the admin dashboard (in a separate terminal):
+4. Run the development server:
 ```bash
-cd admin
-npm run dev
+python manage.py runserver
 ```
 
-## Production
+The API will be available at `http://localhost:8000/api/`
 
-Build the admin dashboard:
-```bash
-cd admin
-npm run build
-cd ..
-```
+## API Endpoints
 
-Run the server (serves API + built admin):
-```bash
-NODE_ENV=production npm start
-```
+### Members
+- `GET /api/members/` - List all members
+- `POST /api/members/` - Create new member
+- `GET /api/members/{id}/` - Get member details
+- `PATCH /api/members/{id}/` - Update member
+- `DELETE /api/members/{id}/` - Delete member
+
+### Leads
+- `GET /api/leads/` - List all leads
+- `POST /api/leads/` - Create new lead
+- `GET /api/leads/{id}/` - Get lead details
+- `PATCH /api/leads/{id}/` - Update lead
+- `PATCH /api/leads/{id}/status` - Update lead status
+- `DELETE /api/leads/{id}/` - Delete lead
+
+### Payments
+- `GET /api/payments/` - List all payments
+- `POST /api/payments/` - Record new payment
+- `GET /api/payments/{id}/` - Get payment details
+- `DELETE /api/payments/{id}/` - Delete payment
+
+### Plans
+- `GET /api/plans/` - List all plans
+- `POST /api/plans/` - Create new plan
+- `GET /api/plans/{id}/` - Get plan details
+- `PATCH /api/plans/{id}/` - Update plan
+- `DELETE /api/plans/{id}/` - Delete plan
+
+### Team
+- `GET /api/team/` - List all team members
+- `POST /api/team/` - Add team member
+- `GET /api/team/{id}/` - Get team member details
+- `PATCH /api/team/{id}/` - Update team member
+- `DELETE /api/team/{id}/` - Remove team member
+
+### Dashboard
+- `GET /api/dashboard/stats` - Get dashboard statistics
+- `GET /api/dashboard/expiring-members` - Get members expiring in 14 days
+- `GET /api/dashboard/leads` - Get recent pending leads
+- `GET /api/dashboard/payments` - Get recent payments
+- `GET /api/dashboard/revenue` - Get revenue chart data (last 6 months)
+
+## Admin Panel
+
+Access the Django admin panel at `http://localhost:8000/admin/` after creating a superuser.

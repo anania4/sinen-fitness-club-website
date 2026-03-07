@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { API_BASE_URL } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
 
   useEffect(() => {
     if (isOpen) {
-      fetch('/api/members')
+      fetch(`${API_BASE_URL}/api/members/`)
         .then(res => res.json())
         .then(data => setMembers(data));
     }
@@ -33,7 +34,7 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/payments', {
+      const res = await fetch(`${API_BASE_URL}/api/payments/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

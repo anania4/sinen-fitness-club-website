@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Dumbbell, X } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface Plan {
   id: number;
@@ -17,7 +18,7 @@ export const PlansPage: React.FC = () => {
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch('/api/plans');
+      const res = await fetch(`${API_BASE_URL}/api/plans/`);
       const data = await res.json();
       setPlans(data);
     } catch (error) {
@@ -34,7 +35,7 @@ export const PlansPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
     try {
-      await fetch(`/api/plans/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/plans/${id}/`, { method: 'DELETE' });
       fetchPlans();
     } catch (error) {
       console.error('Error deleting plan:', error);
@@ -147,7 +148,7 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, onSuccess, plan 
     e.preventDefault();
     setLoading(true);
     try {
-      const url = plan ? `/api/plans/${plan.id}` : '/api/plans';
+      const url = plan ? `${API_BASE_URL}/api/plans/${plan.id}/` : `${API_BASE_URL}/api/plans/`;
       const method = plan ? 'PATCH' : 'POST';
       const res = await fetch(url, {
         method,

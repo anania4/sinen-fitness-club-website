@@ -70,6 +70,7 @@ export const Sidebar: React.FC = () => {
             <NavLink
               key={item.label}
               to={item.path}
+              end={item.path === '/admin'}
               onClick={() => setIsOpen(false)}
               className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-sm ${
                 isActive 

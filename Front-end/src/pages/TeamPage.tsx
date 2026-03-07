@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Search, Users as UsersIcon, X } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface TeamMember {
   id: number;
@@ -18,7 +19,7 @@ export const TeamPage: React.FC = () => {
 
   const fetchTeam = async () => {
     try {
-      const res = await fetch('/api/team');
+      const res = await fetch(`${API_BASE_URL}/api/team/`);
       const data = await res.json();
       setTeam(data);
       setFilteredTeam(data);
@@ -45,7 +46,7 @@ export const TeamPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to remove this team member?')) return;
     try {
-      await fetch(`/api/team/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/team/${id}/`, { method: 'DELETE' });
       fetchTeam();
     } catch (error) {
       console.error('Error deleting team member:', error);
@@ -169,7 +170,7 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess, membe
     e.preventDefault();
     setLoading(true);
     try {
-      const url = member ? `/api/team/${member.id}` : '/api/team';
+      const url = member ? `${API_BASE_URL}/api/team/${member.id}/` : `${API_BASE_URL}/api/team/`;
       const method = member ? 'PATCH' : 'POST';
       const res = await fetch(url, {
         method,

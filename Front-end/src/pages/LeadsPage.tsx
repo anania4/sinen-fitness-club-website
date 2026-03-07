@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Lead } from '../types';
 import { UserPlus, Trash2, Search, Phone, Target, Clock } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export const LeadsPage: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -10,7 +11,7 @@ export const LeadsPage: React.FC = () => {
 
   const fetchLeads = async () => {
     try {
-      const res = await fetch('/api/leads');
+      const res = await fetch(`${API_BASE_URL}/api/leads/`);
       const data = await res.json();
       setLeads(data);
       setFilteredLeads(data);
@@ -37,7 +38,7 @@ export const LeadsPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this lead?')) return;
     try {
-      await fetch(`/api/leads/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/leads/${id}/`, { method: 'DELETE' });
       fetchLeads();
     } catch (error) {
       console.error('Error deleting lead:', error);
@@ -46,7 +47,7 @@ export const LeadsPage: React.FC = () => {
 
   const handleStatusChange = async (id: number, status: string) => {
     try {
-      await fetch(`/api/leads/${id}/status`, {
+      await fetch(`${API_BASE_URL}/api/leads/${id}/status/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Member } from '../types';
+import { API_BASE_URL } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -25,7 +26,7 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
       setExpiryDate(member.expiry_date);
       setStatus(member.status);
       
-      fetch('/api/plans')
+      fetch(`${API_BASE_URL}/api/plans/`)
         .then(res => res.json())
         .then(data => setPlans(data));
     }
@@ -36,7 +37,7 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
     if (!member) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/members/${member.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/members/${member.id}/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, plan, expiry_date: expiryDate, status }),

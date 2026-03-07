@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Payment } from '../types';
 import { Plus, Trash2, Search, CreditCard } from 'lucide-react';
 import { RecordPaymentModal } from '../components/RecordPaymentModal';
+import { API_BASE_URL } from '../config';
 
 export const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -12,7 +13,7 @@ export const PaymentsPage: React.FC = () => {
 
   const fetchPayments = async () => {
     try {
-      const res = await fetch('/api/payments');
+      const res = await fetch(`${API_BASE_URL}/api/payments/`);
       const data = await res.json();
       setPayments(data);
       setFilteredPayments(data);
@@ -38,7 +39,7 @@ export const PaymentsPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this payment?')) return;
     try {
-      await fetch(`/api/payments/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/payments/${id}/`, { method: 'DELETE' });
       fetchPayments();
     } catch (error) {
       console.error('Error deleting payment:', error);
