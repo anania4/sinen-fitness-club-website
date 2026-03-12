@@ -17,7 +17,7 @@ interface Member {
 export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   const [memberName, setMemberName] = useState('');
   const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState('Credit Card');
+  const [method, setMethod] = useState('cash');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
@@ -26,7 +26,15 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
     if (isOpen) {
       fetch(`${API_BASE_URL}/api/members/`)
         .then(res => res.json())
-        .then(data => setMembers(data));
+        .then(data => {
+          // Handle both array and paginated response
+          const membersArray = Array.isArray(data) ? data : (data.results || []);
+          setMembers(membersArray);
+        })
+        .catch(error => {
+          console.error('Error fetching members:', error);
+          setMembers([]);
+        });
     }
   }, [isOpen]);
 
@@ -44,14 +52,22 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
           method 
         }),
       });
-      if (res.ok) {
-        onSuccess();
-        onClose();
-        setAmount('');
-        setMemberName('');
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Server error:', errorData);
+        alert(`Failed to record payment: ${JSON.stringify(errorData)}`);
+        return;
       }
+      
+      onSuccess();
+      onClose();
+      setAmount('');
+      setMemberName('');
+      setMethod('cash');
     } catch (error) {
       console.error('Error recording payment:', error);
+      alert('Failed to record payment. Check console for details.');
     } finally {
       setLoading(false);
     }
@@ -110,10 +126,9 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
                   onChange={(e) => setMethod(e.target.value)}
                   className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 >
-                  <option>Credit Card</option>
-                  <option>Cash</option>
-                  <option>PayPal</option>
-                  <option>Bank Transfer</option>
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="bank_transfer">Bank Transfer</option>
                 </select>
               </div>
               

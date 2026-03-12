@@ -21,8 +21,9 @@ export const TeamPage: React.FC = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/team/`);
       const data = await res.json();
-      setTeam(data);
-      setFilteredTeam(data);
+      const teamArray = Array.isArray(data) ? data : (data.results || []);
+      setTeam(teamArray);
+      setFilteredTeam(teamArray);
     } catch (error) {
       console.error('Error fetching team:', error);
     } finally {

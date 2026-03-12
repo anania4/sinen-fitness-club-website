@@ -5,7 +5,7 @@ import { API_BASE_URL } from '../config';
 interface Plan {
   id: number;
   name: string;
-  price: number;
+  price: number | string;
   duration: string;
   features: string;
 }
@@ -15,14 +15,22 @@ export const PlansPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  const [error, setError] = useState<string>('');
 
   const fetchPlans = async () => {
     try {
+      setError('');
       const res = await fetch(`${API_BASE_URL}/api/plans/`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch plans: ${res.status} ${res.statusText}`);
+      }
       const data = await res.json();
-      setPlans(data);
+      // Handle both paginated and non-paginated responses
+      const plansArray = Array.isArray(data) ? data : (data.results || []);
+      setPlans(plansArray);
     } catch (error) {
       console.error('Error fetching plans:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load plans. Make sure the backend is running.');
     } finally {
       setLoading(false);
     }
@@ -35,10 +43,14 @@ export const PlansPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
     try {
-      await fetch(`${API_BASE_URL}/api/plans/${id}/`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/api/plans/${id}/`, { method: 'DELETE' });
+      if (!res.ok) {
+        throw new Error('Failed to delete plan');
+      }
       fetchPlans();
     } catch (error) {
       console.error('Error deleting plan:', error);
+      alert('Failed to delete plan. Please try again.');
     }
   };
 
@@ -51,6 +63,26 @@ export const PlansPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Plans</h1>
+        </div>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+          <p className="text-red-500 font-bold mb-2">Error loading plans</p>
+          <p className="text-gray-400 text-sm mb-4">{error}</p>
+          <button
+            onClick={() => { setLoading(true); fetchPlans(); }}
+            className="px-4 py-2 bg-orange-500 text-black font-bold rounded-full hover:bg-orange-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -84,7 +116,7 @@ export const PlansPage: React.FC = () => {
             </div>
             
             <div className="mb-4">
-              <p className="text-3xl font-black text-orange-500">{plan.price.toFixed(2)} <span className="text-lg">ETB</span></p>
+              <p className="text-3xl font-black text-orange-500">{parseFloat(plan.price).toFixed(2)} <span className="text-lg">ETB</span></p>
             </div>
 
             <div className="mb-4">
@@ -155,12 +187,15 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, onSuccess, plan 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, price: parseFloat(price), duration, features }),
       });
-      if (res.ok) {
-        onSuccess();
-        onClose();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to save plan: ${res.status}`);
       }
+      onSuccess();
+      onClose();
     } catch (error) {
       console.error('Error saving plan:', error);
+      alert(error instanceof Error ? error.message : 'Failed to save plan. Please try again.');
     } finally {
       setLoading(false);
     }

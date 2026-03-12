@@ -10,6 +10,7 @@ interface Props {
 
 export const ExpiringMembersTable: React.FC<Props> = ({ members, onRefresh }) => {
   const navigate = useNavigate();
+  
   const getDaysRemaining = (dateStr: string) => {
     const expiry = new Date(dateStr);
     const today = new Date();
@@ -18,21 +19,37 @@ export const ExpiringMembersTable: React.FC<Props> = ({ members, onRefresh }) =>
     return diffDays;
   };
 
-  const handleExtend = async (id: number) => {
-    try {
-      const res = await fetch(`/api/members/${id}/extend`, { method: 'POST' });
-      if (res.ok) {
-        onRefresh();
-      }
-    } catch (error) {
-      console.error('Error extending membership:', error);
+  const getStatusBadge = (days: number) => {
+    if (days < 0) {
+      return {
+        text: 'EXPIRED',
+        className: 'bg-red-500 text-white animate-pulse'
+      };
+    } else if (days <= 3) {
+      return {
+        text: `${days} DAYS`,
+        className: 'bg-orange-500 text-black'
+      };
+    } else if (days <= 7) {
+      return {
+        text: `${days} DAYS`,
+        className: 'bg-yellow-500 text-black'
+      };
+    } else {
+      return {
+        text: `${days} DAYS`,
+        className: 'bg-zinc-800 text-gray-400'
+      };
     }
   };
 
   return (
     <div className="bg-zinc-900/80 backdrop-blur-sm rounded-[2rem] border border-white/10 overflow-hidden">
       <div className="p-6 border-b border-white/10 flex items-center justify-between">
-        <h3 className="font-black text-white uppercase tracking-tight">Memberships Expiring Soon</h3>
+        <div>
+          <h3 className="font-black text-white uppercase tracking-tight">Memberships Expiring Soon</h3>
+          <p className="text-xs text-gray-500 mt-1">Sorted by urgency - expired members first</p>
+        </div>
         <button 
           onClick={() => navigate('/members')}
           className="text-xs font-black text-orange-500 hover:text-orange-400 uppercase tracking-wider"
@@ -47,13 +64,15 @@ export const ExpiringMembersTable: React.FC<Props> = ({ members, onRefresh }) =>
               <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Member Name</th>
               <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Plan</th>
               <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Expiry Date</th>
-              <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Days Left</th>
+              <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Status</th>
               <th className="px-6 py-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {members.map((member) => {
               const days = getDaysRemaining(member.expiry_date);
+              const statusBadge = getStatusBadge(days);
+              
               return (
                 <tr key={member.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
@@ -67,22 +86,16 @@ export const ExpiringMembersTable: React.FC<Props> = ({ members, onRefresh }) =>
                   <td className="px-6 py-4 text-sm text-gray-400">{member.plan}</td>
                   <td className="px-6 py-4 text-sm text-gray-400">{member.expiry_date}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
-                      days <= 3 ? 'bg-orange-500 text-black' : 'bg-zinc-800 text-gray-400'
-                    }`}>
-                      {days} Days
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusBadge.className}`}>
+                      {statusBadge.text}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button 
-                      onClick={() => handleExtend(member.id)}
-                      className="text-orange-500 hover:bg-orange-500/10 p-2 rounded-lg transition-colors group relative"
-                      title="Extend 30 Days"
+                      onClick={() => navigate('/members')}
+                      className="text-orange-500 hover:bg-orange-500/10 px-3 py-1 rounded-lg transition-colors text-xs font-bold uppercase"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      <span className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-zinc-800 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap">
-                        Extend 30 Days
-                      </span>
+                      Renew
                     </button>
                   </td>
                 </tr>

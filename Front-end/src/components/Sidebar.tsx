@@ -9,7 +9,8 @@ import {
   Send, 
   Settings,
   Dumbbell,
-  Users as UsersIcon
+  Users as UsersIcon,
+  Megaphone
 } from 'lucide-react';
 
 const menuItems = [
@@ -18,6 +19,7 @@ const menuItems = [
   { icon: UserPlus, label: 'Leads', path: '/admin/leads' },
   { icon: Dumbbell, label: 'Plans', path: '/admin/plans' },
   { icon: CreditCard, label: 'Payments', path: '/admin/payments' },
+  { icon: Megaphone, label: 'Announcements', path: '/admin/announcements' },
   { icon: UsersIcon, label: 'Sinen Team', path: '/admin/team' },
   { icon: Send, label: 'Telegram Reminders', path: '/admin/telegram' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },

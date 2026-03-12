@@ -64,7 +64,8 @@ import {
   X,
   Star,
   Award,
-  ShieldCheck
+  ShieldCheck,
+  Megaphone
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
@@ -77,6 +78,9 @@ function cn(...inputs: any[]) {
 function Home() {
   const navigate = useNavigate();
   const [selectedService, setSelectedService] = useState<null | { title: string, desc: string, fullDesc: string, img: string, gallery: string[] }>(null);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -86,6 +90,59 @@ function Home() {
   const testimonialsRef = useRef<HTMLDivElement>(null);
   const pricingRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
+
+  // Fetch plans from API
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/plans/`);
+        if (response.ok) {
+          const data = await response.json();
+          // Handle both paginated and non-paginated responses
+          const plansArray = Array.isArray(data) ? data : (data.results || []);
+          setPlans(plansArray);
+        } else {
+          // Fallback to default plans if API fails
+          setPlans([
+            { name: 'Monthly', price: '3000', duration: 'Monthly', features: 'Full Gym Access\nAll Group Classes\nLocker Service\nProgress Tracking' },
+            { name: '3 Months', price: '8000', duration: 'Quarterly', features: 'Full Gym Access\nAll Group Classes\nLocker Service\nProgress Tracking', highlight: true },
+            { name: '6 Months', price: '15000', duration: 'Annual', features: 'Full Gym Access\nAll Group Classes\nLocker Service\nProgress Tracking' }
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch plans:', error);
+        // Fallback to default plans
+        setPlans([
+          { name: 'Monthly', price: '3000', duration: 'Monthly', features: 'Full Gym Access\nAll Group Classes\nLocker Service\nProgress Tracking' },
+          { name: '3 Months', price: '8000', duration: 'Quarterly', features: 'Full Gym Access\nAll Group Classes\nLocker Service\nProgress Tracking', highlight: true },
+          { name: '6 Months', price: '15000', duration: 'Annual', features: 'Full Gym Access\nAll Group Classes\nLocker Service\nProgress Tracking' }
+        ]);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  // Fetch announcements from API
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/announcements/`);
+        if (response.ok) {
+          const data = await response.json();
+          const announcementsArray = Array.isArray(data) ? data : (data.results || []);
+          // Only show active announcements
+          setAnnouncements(announcementsArray.filter((a: any) => a.is_active));
+        }
+      } catch (error) {
+        console.error('Failed to fetch announcements:', error);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
 
   useEffect(() => {
     // 1. Smooth Scrolling with Lenis
@@ -423,6 +480,55 @@ function Home() {
         </div>
       </section>
 
+      {/* Announcements Section */}
+      <section 
+        key="announcements" 
+        className={`py-24 md:py-32 px-6 bg-black relative overflow-hidden ${announcements.length === 0 ? 'hidden' : ''}`}
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 text-[12vw] font-black opacity-5 pointer-events-none select-none italic">
+          STAY UPDATED
+        </div>
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <span className="bg-orange-500 text-black px-4 py-1 text-[10px] font-black uppercase italic rounded-sm">አዲስ</span>
+            </div>
+            <h2 className="text-orange-500 font-bold uppercase tracking-[0.5em] text-xs mb-6">Latest Updates</h2>
+            <h3 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter">Announcements</h3>
+          </div>
+
+          <div className="space-y-6">
+            {announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className="bg-zinc-900/80 backdrop-blur-sm rounded-[2rem] border border-white/10 p-8 hover:border-orange-500/30 transition-all group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
+                    <Megaphone className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-2xl font-black uppercase italic mb-3 group-hover:text-orange-500 transition-colors">
+                      {announcement.title}
+                    </h4>
+                    <p className="text-gray-400 text-lg leading-relaxed">
+                      {announcement.message}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-4 uppercase tracking-widest font-bold">
+                      {new Date(announcement.created_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Horizontal Scroll Section - Services (Redone) */}
       <section id="services" ref={horizontalRef} className="bg-zinc-900 overflow-hidden relative">
         {/* Progress Bar */}
@@ -629,43 +735,50 @@ function Home() {
           </div>
 
           <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-6 md:gap-12 pb-8 md:pb-0 snap-x snap-mandatory no-scrollbar">
-            {[
-              { title: 'Monthly', price: '3,000', label: 'Starter' },
-              { title: '3 Months', price: '8,000', label: 'Popular', highlight: true },
-              { title: '6 Months', price: '15,000', label: 'Elite' }
-            ].map((plan, i) => (
-              <div 
-                key={i}
-                className={cn(
-                  "pricing-card flex-shrink-0 w-[85%] md:w-full snap-center p-8 md:p-12 rounded-[2.5rem] md:rounded-[3rem] border flex flex-col items-center text-center transition-transform hover:-translate-y-4 duration-500",
-                  plan.highlight ? "bg-orange-500 border-orange-400 text-black" : "bg-black border-white/10 text-white"
-                )}
-              >
-                <span className={cn("uppercase tracking-[0.3em] text-[10px] font-black mb-6 md:mb-8", plan.highlight ? "text-black/60" : "text-gray-500")}>
-                  {plan.label}
-                </span>
-                <h4 className="text-2xl md:text-3xl font-black uppercase italic mb-4">{plan.title}</h4>
-                <div className="flex items-baseline gap-2 mb-8 md:mb-12">
-                  <span className="text-5xl md:text-6xl font-black">{plan.price}</span>
-                  <span className="font-bold opacity-60">ETB</span>
-                </div>
-                <ul className="space-y-3 md:space-y-4 mb-8 md:mb-12 font-bold text-xs md:text-sm opacity-80">
-                  <li>Full Gym Access</li>
-                  <li>All Group Classes</li>
-                  <li>Locker Service</li>
-                  <li>Progress Tracking</li>
-                </ul>
-                <button 
-                  onClick={() => navigate('/register')}
-                  className={cn(
-                    "w-full py-4 md:py-5 rounded-full font-black uppercase tracking-widest text-[10px] md:text-xs transition-all",
-                    plan.highlight ? "bg-black text-white hover:scale-105" : "bg-white text-black hover:bg-orange-500"
-                  )}
-                >
-                  Select Plan
-                </button>
+            {loadingPlans ? (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-gray-500">Loading plans...</p>
               </div>
-            ))}
+            ) : (
+              plans.map((plan, i) => {
+                const features = plan.features ? plan.features.split('\n') : ['Full Gym Access', 'All Group Classes', 'Locker Service', 'Progress Tracking'];
+                const isHighlight = plan.highlight || plan.duration === 'Quarterly' || i === 1;
+                const label = plan.duration === 'Monthly' ? 'Starter' : plan.duration === 'Quarterly' ? 'Popular' : 'Elite';
+                
+                return (
+                  <div 
+                    key={plan.id || i}
+                    className={cn(
+                      "pricing-card flex-shrink-0 w-[85%] md:w-full snap-center p-8 md:p-12 rounded-[2.5rem] md:rounded-[3rem] border flex flex-col items-center text-center transition-transform hover:-translate-y-4 duration-500",
+                      isHighlight ? "bg-orange-500 border-orange-400 text-black" : "bg-black border-white/10 text-white"
+                    )}
+                  >
+                    <span className={cn("uppercase tracking-[0.3em] text-[10px] font-black mb-6 md:mb-8", isHighlight ? "text-black/60" : "text-gray-500")}>
+                      {label}
+                    </span>
+                    <h4 className="text-2xl md:text-3xl font-black uppercase italic mb-4">{plan.name}</h4>
+                    <div className="flex items-baseline gap-2 mb-8 md:mb-12">
+                      <span className="text-5xl md:text-6xl font-black">{parseFloat(plan.price).toLocaleString()}</span>
+                      <span className="font-bold opacity-60">ETB</span>
+                    </div>
+                    <ul className="space-y-3 md:space-y-4 mb-8 md:mb-12 font-bold text-xs md:text-sm opacity-80">
+                      {features.map((feature: string, idx: number) => (
+                        <li key={idx}>{feature}</li>
+                      ))}
+                    </ul>
+                    <button 
+                      onClick={() => navigate('/register')}
+                      className={cn(
+                        "w-full py-4 md:py-5 rounded-full font-black uppercase tracking-widest text-[10px] md:text-xs transition-all",
+                        isHighlight ? "bg-black text-white hover:scale-105" : "bg-white text-black hover:bg-orange-500"
+                      )}
+                    >
+                      Select Plan
+                    </button>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </section>

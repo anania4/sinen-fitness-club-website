@@ -4,6 +4,7 @@ import { ExpiringMembersTable } from '../components/ExpiringMembersTable';
 import { LeadsTable } from '../components/LeadsTable';
 import { RecentPaymentsTable } from '../components/RecentPaymentsTable';
 import { RevenueChart } from '../components/RevenueChart';
+import { DashboardNotifications } from '../components/DashboardNotifications';
 import { DashboardStats, Member, Lead, Payment, RevenueData } from '../types';
 import { Users, UserCheck, Clock, UserPlus } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -42,7 +43,11 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
       setExpiringMembers(expiringData);
       setLeads(leadsData);
       setPayments(paymentsData);
-      setRevenue(revenueData);
+      // Ensure revenue amounts are numbers
+      setRevenue(revenueData.map((item: any) => ({
+        month: item.month,
+        amount: parseFloat(item.amount) || 0
+      })));
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -71,6 +76,13 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic tracking-tighter text-white">Dashboard Overview</h2>
         <p className="text-sm sm:text-base text-gray-500 font-medium">Welcome back! Here's what's happening at your gym today.</p>
       </div>
+
+      {/* Notifications */}
+      <DashboardNotifications 
+        expiringMembers={expiringMembers}
+        leads={leads}
+        stats={stats}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

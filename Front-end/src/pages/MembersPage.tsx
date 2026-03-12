@@ -3,6 +3,7 @@ import { Member } from '../types';
 import { UserPlus, Edit, Trash2, Search } from 'lucide-react';
 import { NewMemberModal } from '../components/NewMemberModal';
 import { EditMemberModal } from '../components/EditMemberModal';
+import { MemberDetailsModal } from '../components/MemberDetailsModal';
 import { API_BASE_URL } from '../config';
 
 export const MembersPage: React.FC = () => {
@@ -12,14 +13,16 @@ export const MembersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showNewModal, setShowNewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   const fetchMembers = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/members/`);
       const data = await res.json();
-      setMembers(data);
-      setFilteredMembers(data);
+      const membersArray = Array.isArray(data) ? data : (data.results || []);
+      setMembers(membersArray);
+      setFilteredMembers(membersArray);
     } catch (error) {
       console.error('Error fetching members:', error);
     } finally {
@@ -52,6 +55,11 @@ export const MembersPage: React.FC = () => {
   const handleEdit = (member: Member) => {
     setSelectedMember(member);
     setShowEditModal(true);
+  };
+
+  const handleViewDetails = (member: Member) => {
+    setSelectedMember(member);
+    setShowDetailsModal(true);
   };
 
   if (loading) {
@@ -100,18 +108,26 @@ export const MembersPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-white/10">
               {filteredMembers.map((member) => (
-                <tr key={member.id} className="hover:bg-white/5 transition-colors">
+                <tr 
+                  key={member.id} 
+                  onClick={() => handleViewDetails(member)}
+                  className="hover:bg-white/5 transition-colors cursor-pointer"
+                >
                   <td className="px-6 py-4 text-white font-bold">{member.name}</td>
                   <td className="px-6 py-4 text-gray-400">{member.plan}</td>
                   <td className="px-6 py-4 text-gray-400">{new Date(member.expiry_date).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                      member.status === 'active' ? 'bg-orange-500/20 text-orange-500' : 'bg-gray-500/20 text-gray-500'
+                      member.status === 'active' ? 'bg-green-500/20 text-green-500' : 
+                      member.status === 'expired' ? 'bg-red-500/20 text-red-500' :
+                      member.status === 'suspended' ? 'bg-yellow-500/20 text-yellow-500' :
+                      member.status === 'frozen' ? 'bg-blue-500/20 text-blue-500' :
+                      'bg-gray-500/20 text-gray-500'
                     }`}>
                       {member.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleEdit(member)}
@@ -136,6 +152,12 @@ export const MembersPage: React.FC = () => {
 
       <NewMemberModal isOpen={showNewModal} onClose={() => setShowNewModal(false)} onSuccess={fetchMembers} />
       <EditMemberModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} onSuccess={fetchMembers} member={selectedMember} />
+      <MemberDetailsModal 
+        isOpen={showDetailsModal} 
+        onClose={() => setShowDetailsModal(false)} 
+        member={selectedMember}
+        onEdit={() => { setShowDetailsModal(false); setShowEditModal(true); }}
+      />
     </div>
   );
 };

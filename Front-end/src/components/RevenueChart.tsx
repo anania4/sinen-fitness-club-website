@@ -16,7 +16,7 @@ interface Props {
 
 export const RevenueChart: React.FC<Props> = ({ data }) => {
   return (
-    <div className="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/10 h-[400px] flex flex-col">
+    <div className="bg-zinc-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-white/10 flex flex-col">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h3 className="font-black text-white uppercase tracking-tight text-xl">Monthly Revenue</h3>
@@ -30,7 +30,7 @@ export const RevenueChart: React.FC<Props> = ({ data }) => {
         </div>
       </div>
       
-      <div className="flex-1 w-full">
+      <div className="flex-1 w-full min-h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Bell, HelpCircle } from 'lucide-react';
+import { Search, HelpCircle } from 'lucide-react';
 import { NewMemberModal } from './NewMemberModal';
+import { NotificationBell } from './NotificationBell';
 
 interface Props {
   onRefresh: () => void;
@@ -22,12 +23,7 @@ export const Header: React.FC<Props> = ({ onRefresh }) => {
         </div>
         
         <div className="flex items-center gap-3 sm:gap-6 ml-auto">
-          <button className="text-gray-400 hover:text-white relative transition-colors">
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 border-2 border-zinc-900 rounded-full text-[10px] text-black flex items-center justify-center font-black">
-              3
-            </span>
-          </button>
+          <NotificationBell />
           <button className="hidden sm:block text-gray-400 hover:text-white transition-colors">
             <HelpCircle className="w-6 h-6" />
           </button>

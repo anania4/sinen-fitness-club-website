@@ -20,6 +20,16 @@ export const TelegramPage: React.FC = () => {
   const fetchSettings = async () => {
     try {
       const res = await fetch('/api/settings');
+      if (!res.ok) {
+        // Settings endpoint doesn't exist yet, use defaults
+        setSettings({
+          botToken: '',
+          chatId: '',
+          reminderDays: '7'
+        });
+        setConfigured(false);
+        return;
+      }
       const data = await res.json();
       setSettings({
         botToken: data.telegramBotToken || '',
@@ -29,6 +39,13 @@ export const TelegramPage: React.FC = () => {
       setConfigured(!!(data.telegramBotToken && data.telegramChatId));
     } catch (error) {
       console.error('Error fetching settings:', error);
+      // Use defaults on error
+      setSettings({
+        botToken: '',
+        chatId: '',
+        reminderDays: '7'
+      });
+      setConfigured(false);
     }
   };
 

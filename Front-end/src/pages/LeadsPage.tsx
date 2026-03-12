@@ -13,8 +13,9 @@ export const LeadsPage: React.FC = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/leads/`);
       const data = await res.json();
-      setLeads(data);
-      setFilteredLeads(data);
+      const leadsArray = Array.isArray(data) ? data : (data.results || []);
+      setLeads(leadsArray);
+      setFilteredLeads(leadsArray);
     } catch (error) {
       console.error('Error fetching leads:', error);
     } finally {

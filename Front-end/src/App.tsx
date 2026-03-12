@@ -12,6 +12,7 @@ import { PaymentsPage } from './pages/PaymentsPage';
 import { TeamPage } from './pages/TeamPage';
 import { TelegramPage } from './pages/TelegramPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AnnouncementsPage } from './pages/AnnouncementsPage';
 import AdminLayout from './AdminLayout';
 
 
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="leads" element={<LeadsPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="payments" element={<PaymentsPage />} />
+            <Route path="announcements" element={<AnnouncementsPage />} />
             <Route path="team" element={<TeamPage />} />
             <Route path="telegram" element={<TelegramPage />} />
             <Route path="settings" element={<SettingsPage />} />

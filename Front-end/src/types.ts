@@ -8,9 +8,14 @@ export interface DashboardStats {
 export interface Member {
   id: number;
   name: string;
+  phone: string;
+  emergency_contact?: string;
   plan: string;
+  start_date: string;
   expiry_date: string;
+  payment_status: string;
   status: string;
+  profile_photo?: string;
 }
 
 export interface Lead {

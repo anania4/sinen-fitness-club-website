@@ -44,7 +44,7 @@ export const RecentPaymentsTable: React.FC<Props> = ({ payments }) => {
                 <td className="px-6 py-4">
                   <span className="font-bold text-white">{payment.member_name}</span>
                 </td>
-                <td className="px-6 py-4 text-sm font-black text-orange-500">{payment.amount.toFixed(2)} ETB</td>
+                <td className="px-6 py-4 text-sm font-black text-orange-500">{parseFloat(payment.amount.toString()).toFixed(2)} ETB</td>
                 <td className="px-6 py-4 text-sm text-gray-400">{payment.date}</td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2 text-xs font-medium text-gray-400">

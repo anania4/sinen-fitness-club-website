@@ -15,8 +15,9 @@ export const PaymentsPage: React.FC = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/payments/`);
       const data = await res.json();
-      setPayments(data);
-      setFilteredPayments(data);
+      const paymentsArray = Array.isArray(data) ? data : (data.results || []);
+      setPayments(paymentsArray);
+      setFilteredPayments(paymentsArray);
     } catch (error) {
       console.error('Error fetching payments:', error);
     } finally {
@@ -46,7 +47,7 @@ export const PaymentsPage: React.FC = () => {
     }
   };
 
-  const totalRevenue = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+  const totalRevenue = filteredPayments.reduce((sum, p) => sum + parseFloat(p.amount.toString()), 0);
 
   if (loading) {
     return (
@@ -106,7 +107,7 @@ export const PaymentsPage: React.FC = () => {
               {filteredPayments.map((payment) => (
                 <tr key={payment.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-white font-bold">{payment.member_name}</td>
-                  <td className="px-6 py-4 text-orange-500 font-black">{payment.amount.toFixed(2)} ETB</td>
+                  <td className="px-6 py-4 text-orange-500 font-black">{parseFloat(payment.amount.toString()).toFixed(2)} ETB</td>
                   <td className="px-6 py-4 text-gray-400">{new Date(payment.date).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-gray-400">{payment.method}</td>
                   <td className="px-6 py-4 text-right">

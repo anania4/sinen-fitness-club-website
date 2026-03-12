@@ -20,6 +20,17 @@ export const SettingsPage: React.FC = () => {
   const fetchSettings = async () => {
     try {
       const res = await fetch('/api/settings');
+      if (!res.ok) {
+        // Settings endpoint doesn't exist yet, use defaults
+        setSettings({
+          gymName: 'Sinen Fitness Club',
+          telegramBotToken: '',
+          telegramChatId: '',
+          reminderDays: '7',
+          currency: 'ETB'
+        });
+        return;
+      }
       const data = await res.json();
       setSettings({
         gymName: data.gymName || 'Sinen Fitness Club',
@@ -30,6 +41,14 @@ export const SettingsPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Error fetching settings:', error);
+      // Use defaults on error
+      setSettings({
+        gymName: 'Sinen Fitness Club',
+        telegramBotToken: '',
+        telegramChatId: '',
+        reminderDays: '7',
+        currency: 'ETB'
+      });
     } finally {
       setLoading(false);
     }
