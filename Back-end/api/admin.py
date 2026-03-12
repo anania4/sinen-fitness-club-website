@@ -4,9 +4,9 @@ from .models import Member, Lead, Payment, Plan, TeamMember
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ['name', 'plan', 'expiry_date', 'status', 'created_at']
-    list_filter = ['status', 'plan']
-    search_fields = ['name', 'plan']
+    list_display = ['name', 'phone', 'plan', 'start_date', 'expiry_date', 'payment_status', 'status', 'created_at']
+    list_filter = ['status', 'payment_status', 'plan']
+    search_fields = ['name', 'phone', 'plan']
 
 
 @admin.register(Lead)

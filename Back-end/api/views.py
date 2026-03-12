@@ -4,16 +4,65 @@ from rest_framework.response import Response
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from datetime import timedelta
-from .models import Member, Lead, Payment, Plan, TeamMember
+from .models import Member, Lead, Payment, Plan, TeamMember, Announcement
 from .serializers import (
     MemberSerializer, LeadSerializer, PaymentSerializer, 
-    PlanSerializer, TeamMemberSerializer
+    PlanSerializer, TeamMemberSerializer, AnnouncementSerializer
 )
 
 
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
+    
+    def list(self, request, *args, **kwargs):
+        """Auto-update all member statuses before listing"""
+        self._update_all_member_statuses()
+        return super().list(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Auto-update member status before retrieving"""
+        instance = self.get_object()
+        self._update_member_status(instance)
+        return super().retrieve(request, *args, **kwargs)
+    
+    def _update_all_member_statuses(self):
+        """Update status for all members based on current date and payment"""
+        today = timezone.now().date()
+        
+        # Auto-expire members whose expiry date has passed (except frozen/suspended)
+        Member.objects.filter(
+            expiry_date__lt=today
+        ).exclude(status__in=['frozen', 'suspended']).update(status='expired')
+        
+        # Auto-activate members with paid status and valid expiry
+        Member.objects.filter(
+            expiry_date__gte=today,
+            payment_status='paid'
+        ).exclude(status__in=['frozen', 'suspended']).update(status='active')
+        
+        # Auto-suspend members with overdue payment
+        Member.objects.filter(
+            payment_status='overdue'
+        ).exclude(status__in=['frozen', 'suspended']).update(status='suspended')
+    
+    def _update_member_status(self, member):
+        """Update status for a single member"""
+        if member.status in ['frozen', 'suspended']:
+            return  # Don't auto-update manual statuses
+        
+        today = timezone.now().date()
+        
+        if member.expiry_date < today:
+            member.status = 'expired'
+        elif member.payment_status == 'overdue':
+            member.status = 'suspended'
+        elif member.payment_status == 'paid':
+            member.status = 'active'
+        else:
+            member.status = 'active'
+        
+        member.save()
 
 
 class LeadViewSet(viewsets.ModelViewSet):
@@ -46,18 +95,40 @@ class TeamMemberViewSet(viewsets.ModelViewSet):
     serializer_class = TeamMemberSerializer
 
 
+class AnnouncementViewSet(viewsets.ModelViewSet):
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
+
+
 @api_view(['GET'])
 def dashboard_stats(request):
+    """Update all member statuses before calculating stats"""
+    today = timezone.now().date()
+    
+    # Auto-update statuses
+    Member.objects.filter(expiry_date__lt=today).exclude(
+        status__in=['frozen', 'suspended']
+    ).update(status='expired')
+    
+    Member.objects.filter(
+        expiry_date__gte=today,
+        payment_status='paid'
+    ).exclude(status__in=['frozen', 'suspended']).update(status='active')
+    
     total_members = Member.objects.count()
     active_members = Member.objects.filter(status='active').count()
     
-    # Members expiring in next 14 days
-    today = timezone.now().date()
-    expiring_soon = Member.objects.filter(
-        expiry_date__gte=today,
-        expiry_date__lte=today + timedelta(days=14),
-        status='active'
+    # Count both expired and expiring soon (within 14 days)
+    expired_count = Member.objects.filter(expiry_date__lt=today).exclude(
+        status__in=['frozen', 'suspended']
     ).count()
+    
+    expiring_soon_count = Member.objects.filter(
+        expiry_date__gte=today,
+        expiry_date__lte=today + timedelta(days=14)
+    ).exclude(status__in=['frozen', 'suspended']).count()
+    
+    expiring_soon = expired_count + expiring_soon_count
     
     new_leads = Lead.objects.filter(status='pending').count()
     
@@ -71,13 +142,28 @@ def dashboard_stats(request):
 
 @api_view(['GET'])
 def expiring_members(request):
+    """
+    Return members sorted by urgency:
+    1. Expired members (past expiry date)
+    2. Expiring soon (within 14 days)
+    3. Sorted by days remaining (worst first)
+    """
     today = timezone.now().date()
-    members = Member.objects.filter(
+    
+    # Get expired members
+    expired = Member.objects.filter(expiry_date__lt=today).exclude(status__in=['frozen', 'suspended'])
+    
+    # Get expiring soon (next 14 days)
+    expiring_soon = Member.objects.filter(
         expiry_date__gte=today,
-        expiry_date__lte=today + timedelta(days=14),
-        status='active'
-    )
-    serializer = MemberSerializer(members, many=True)
+        expiry_date__lte=today + timedelta(days=14)
+    ).exclude(status__in=['frozen', 'suspended'])
+    
+    # Combine and sort by expiry date (earliest first = most urgent)
+    all_members = list(expired) + list(expiring_soon)
+    all_members.sort(key=lambda m: m.expiry_date)
+    
+    serializer = MemberSerializer(all_members, many=True)
     return Response(serializer.data)
 
 
