@@ -480,55 +480,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Announcements Section */}
-      <section 
-        key="announcements" 
-        className={`py-24 md:py-32 px-6 bg-black relative overflow-hidden ${announcements.length === 0 ? 'hidden' : ''}`}
-      >
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 text-[12vw] font-black opacity-5 pointer-events-none select-none italic">
-          STAY UPDATED
-        </div>
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <span className="bg-orange-500 text-black px-4 py-1 text-[10px] font-black uppercase italic rounded-sm">አዲስ</span>
-            </div>
-            <h2 className="text-orange-500 font-bold uppercase tracking-[0.5em] text-xs mb-6">Latest Updates</h2>
-            <h3 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter">Announcements</h3>
-          </div>
-
-          <div className="space-y-6">
-            {announcements.map((announcement) => (
-              <div
-                key={announcement.id}
-                className="bg-zinc-900/80 backdrop-blur-sm rounded-[2rem] border border-white/10 p-8 hover:border-orange-500/30 transition-all group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
-                    <Megaphone className="w-6 h-6 text-orange-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-2xl font-black uppercase italic mb-3 group-hover:text-orange-500 transition-colors">
-                      {announcement.title}
-                    </h4>
-                    <p className="text-gray-400 text-lg leading-relaxed">
-                      {announcement.message}
-                    </p>
-                    <p className="text-xs text-gray-600 mt-4 uppercase tracking-widest font-bold">
-                      {new Date(announcement.created_at).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Horizontal Scroll Section - Services (Redone) */}
       <section id="services" ref={horizontalRef} className="bg-zinc-900 overflow-hidden relative">
         {/* Progress Bar */}
@@ -618,6 +569,55 @@ function Home() {
             <div className="gallery-item col-span-1 md:col-span-4 md:row-span-1 rounded-2xl md:rounded-[3rem] overflow-hidden relative group">
               <img src="/images/5.jpg" alt="Sinen Gym 5" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Announcements Section */}
+      <section 
+        key="announcements" 
+        className={`py-24 md:py-40 px-6 bg-zinc-900 relative ${announcements.length === 0 ? 'hidden' : ''}`}
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 text-[12vw] font-black opacity-5 pointer-events-none select-none italic">
+          STAY UPDATED
+        </div>
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <span className="bg-orange-500 text-black px-4 py-1 text-[10px] font-black uppercase italic rounded-sm">አዲስ</span>
+            </div>
+            <h2 className="text-orange-500 font-bold uppercase tracking-[0.5em] text-xs mb-6">Latest Updates</h2>
+            <h3 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter">Announcements</h3>
+          </div>
+
+          <div className="space-y-6">
+            {announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className="bg-black/50 backdrop-blur-sm rounded-[2rem] border border-white/10 p-8 hover:border-orange-500/30 transition-all group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
+                    <Megaphone className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-2xl font-black uppercase italic mb-3 group-hover:text-orange-500 transition-colors">
+                      {announcement.title}
+                    </h4>
+                    <p className="text-gray-400 text-lg leading-relaxed">
+                      {announcement.message}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-4 uppercase tracking-widest font-bold">
+                      {new Date(announcement.created_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

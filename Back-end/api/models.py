@@ -125,3 +125,48 @@ class Announcement(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Settings(models.Model):
+    telegram_bot_token = models.CharField(max_length=255, blank=True, null=True)
+    telegram_chat_id = models.CharField(max_length=255, blank=True, null=True)
+    reminder_days = models.IntegerField(default=7)
+    auto_reminders_enabled = models.BooleanField(default=True)
+    gym_phone = models.CharField(max_length=20, blank=True, null=True)
+    gym_name = models.CharField(max_length=255, default='Sinen Gym')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = 'Settings'
+
+    def __str__(self):
+        return 'Gym Settings'
+
+    @classmethod
+    def get_settings(cls):
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+class TelegramReminder(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='telegram_reminders')
+    reminder_type = models.CharField(max_length=20, choices=[
+        ('d_minus_3', 'D-3 days'),
+        ('d_minus_1', 'D-1 day'),
+        ('d_day', 'D-day'),
+        ('d_plus_1', 'D+1 day'),
+        ('d_plus_2', 'D+2 days'),
+        ('d_plus_3', 'D+3 days'),
+    ])
+    sent_at = models.DateTimeField(auto_now_add=True)
+    message = models.TextField()
+    success = models.BooleanField(default=False)
+    error_message = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-sent_at']
+        unique_together = ['member', 'reminder_type']
+
+    def __str__(self):
+        return f"{self.member.name} - {self.reminder_type}"
+

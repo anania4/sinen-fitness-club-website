@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Member, Lead, Payment, Plan, TeamMember, Announcement
+from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, Settings, TelegramReminder
 from django.utils import timezone
 
 
@@ -90,3 +90,41 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         model = Announcement
         fields = ['id', 'title', 'message', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = ['id', 'telegram_bot_token', 'telegram_chat_id', 'reminder_days',
+                  'auto_reminders_enabled', 'gym_phone', 'gym_name', 'updated_at']
+        read_only_fields = ['id', 'updated_at']
+
+
+class TelegramReminderSerializer(serializers.ModelSerializer):
+    member_name = serializers.CharField(source='member.name', read_only=True)
+
+    class Meta:
+        model = TelegramReminder
+        fields = ['id', 'member', 'member_name', 'reminder_type', 'sent_at',
+                  'message', 'success', 'error_message']
+        read_only_fields = ['id', 'sent_at']
+
+
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = ['id', 'telegram_bot_token', 'telegram_chat_id', 'reminder_days', 
+                  'auto_reminders_enabled', 'gym_phone', 'gym_name', 'updated_at']
+        read_only_fields = ['id', 'updated_at']
+
+
+class TelegramReminderSerializer(serializers.ModelSerializer):
+    member_name = serializers.CharField(source='member.name', read_only=True)
+    
+    class Meta:
+        model = TelegramReminder
+        fields = ['id', 'member', 'member_name', 'reminder_type', 'sent_at', 
+                  'message', 'success', 'error_message']
+        read_only_fields = ['id', 'sent_at']

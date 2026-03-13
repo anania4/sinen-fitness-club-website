@@ -209,3 +209,141 @@ def revenue_chart(request):
         })
     
     return Response(months)
+
+
+# Telegram Integration Views
+from .models import Settings, TelegramReminder
+from .serializers import SettingsSerializer, TelegramReminderSerializer
+from .telegram_service import TelegramService
+
+
+class SettingsViewSet(viewsets.ModelViewSet):
+    queryset = Settings.objects.all()
+    serializer_class = SettingsSerializer
+    
+    def list(self, request, *args, **kwargs):
+        """Always return the single settings instance"""
+        settings = Settings.get_settings()
+        serializer = self.get_serializer(settings)
+        return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        """Update existing settings instead of creating new"""
+        settings = Settings.get_settings()
+        serializer = self.get_serializer(settings, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        """Update settings"""
+        settings = Settings.get_settings()
+        serializer = self.get_serializer(settings, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class TelegramReminderViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = TelegramReminder.objects.all()
+    serializer_class = TelegramReminderSerializer
+    
+    def get_queryset(self):
+        """Filter by member if provided"""
+        queryset = TelegramReminder.objects.all()
+        member_id = self.request.query_params.get('member_id', None)
+        if member_id:
+            queryset = queryset.filter(member_id=member_id)
+        return queryset
+
+
+@api_view(['POST'])
+def send_test_telegram(request):
+    """Send a test message to Telegram"""
+    message = request.data.get('message', '')
+    
+    if not message:
+        return Response(
+            {'error': 'Message is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    telegram_service = TelegramService()
+    success, error = telegram_service.send_test_message(message)
+    
+    if success:
+        return Response({'success': True, 'message': 'Test message sent successfully'})
+    else:
+        return Response(
+            {'success': False, 'error': error},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['POST'])
+def send_telegram_reminders(request):
+    """Manually trigger sending reminders to all eligible members"""
+    telegram_service = TelegramService()
+    result = telegram_service.check_and_send_reminders()
+    
+    return Response(result)
+
+
+@api_view(['POST'])
+def send_announcement_telegram(request):
+    """Send an announcement to Telegram"""
+    announcement_id = request.data.get('announcement_id')
+    
+    if not announcement_id:
+        return Response(
+            {'error': 'Announcement ID is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        announcement = Announcement.objects.get(id=announcement_id)
+    except Announcement.DoesNotExist:
+        return Response(
+            {'error': 'Announcement not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    telegram_service = TelegramService()
+    success, error = telegram_service.send_announcement(announcement)
+    
+    if success:
+        return Response({'success': True, 'message': 'Announcement sent to Telegram'})
+    else:
+        return Response(
+            {'success': False, 'error': error},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['GET'])
+def telegram_stats(request):
+    """Get Telegram reminder statistics"""
+    today = timezone.now().date()
+    
+    # Count reminders sent today
+    sent_today = TelegramReminder.objects.filter(sent_at__date=today).count()
+    successful_today = TelegramReminder.objects.filter(sent_at__date=today, success=True).count()
+    failed_today = TelegramReminder.objects.filter(sent_at__date=today, success=False).count()
+    
+    # Count total reminders
+    total_sent = TelegramReminder.objects.count()
+    total_successful = TelegramReminder.objects.filter(success=True).count()
+    
+    # Get settings
+    settings = Settings.get_settings()
+    
+    return Response({
+        'configured': bool(settings.telegram_bot_token and settings.telegram_chat_id),
+        'auto_reminders_enabled': settings.auto_reminders_enabled,
+        'sent_today': sent_today,
+        'successful_today': successful_today,
+        'failed_today': failed_today,
+        'total_sent': total_sent,
+        'total_successful': total_successful,
+        'success_rate': round((total_successful / total_sent * 100) if total_sent > 0 else 0, 1)
+    })
