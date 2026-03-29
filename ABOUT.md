@@ -37,4 +37,4 @@ A full-stack gym management platform built for **Sinen Fitness Club** to digitiz
 3.  `npm run dev`
 
 ---
-**Built by:** Ruth M. for Sinen Fitness Club, Debre Tabor 🇪🇹
+**Built by:** Anania Minda Tadesse. for Sinen Fitness Club, Addis Ababa 🇪🇹
