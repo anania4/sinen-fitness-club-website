@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Lead } from '../types';
-import { UserPlus, Trash2, Search, Phone, Target, Clock } from 'lucide-react';
+import { UserPlus, Trash2, Search, Phone, Target, Clock, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportToExcel';
 import { API_BASE_URL, apiFetch } from '../config';
 
 export const LeadsPage: React.FC = () => {
@@ -71,6 +72,19 @@ export const LeadsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Leads</h1>
+        <button
+          onClick={() => exportToExcel(filteredLeads, [
+            { header: 'Name', key: 'name' },
+            { header: 'Phone', key: 'phone' },
+            { header: 'Goal', key: 'goal' },
+            { header: 'Preferred Time', key: 'preferred_time' },
+            { header: 'Status', key: 'status' },
+          ], 'Sinen_Leads_Report')}
+          className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 border border-orange-500/30 text-orange-500 font-black uppercase rounded-full hover:bg-orange-500/10 transition-colors text-sm sm:text-base"
+        >
+          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+          Export Excel
+        </button>
       </div>
 
       <div className="relative">

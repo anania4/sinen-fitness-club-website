@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Member } from '../types';
-import { UserPlus, Edit, Trash2, Search } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Search, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportToExcel';
 import { NewMemberModal } from '../components/NewMemberModal';
 import { EditMemberModal } from '../components/EditMemberModal';
 import { MemberDetailsModal } from '../components/MemberDetailsModal';
@@ -18,7 +19,7 @@ export const MembersPage: React.FC = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await apiFetch(`${API_BASE_URL}/api/members//`);
+      const res = await apiFetch(`${API_BASE_URL}/api/members/`);
       const data = await res.json();
       const membersArray = Array.isArray(data) ? data : (data.results || []);
       setMembers(membersArray);
@@ -74,13 +75,30 @@ export const MembersPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Members</h1>
-        <button
-          onClick={() => setShowNewModal(true)}
-          className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
-        >
-          <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
-          Add Member
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportToExcel(filteredMembers, [
+              { header: 'Name', key: 'name' },
+              { header: 'Phone', key: 'phone' },
+              { header: 'Plan', key: 'plan' },
+              { header: 'Start Date', key: 'start_date' },
+              { header: 'Expiry Date', key: 'expiry_date' },
+              { header: 'Payment Status', key: 'payment_status' },
+              { header: 'Status', key: 'status' },
+            ], 'Sinen_Members_Report')}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 border border-orange-500/30 text-orange-500 font-black uppercase rounded-full hover:bg-orange-500/10 transition-colors text-sm sm:text-base"
+          >
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+            Export Excel
+          </button>
+          <button
+            onClick={() => setShowNewModal(true)}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
+          >
+            <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+            Add Member
+          </button>
+        </div>
       </div>
 
       <div className="relative">

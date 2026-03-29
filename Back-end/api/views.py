@@ -7,10 +7,11 @@ from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from datetime import timedelta
-from .models import Member, Lead, Payment, Plan, TeamMember, Announcement
+from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, DailyPass
 from .serializers import (
     MemberSerializer, LeadSerializer, PaymentSerializer, 
-    PlanSerializer, TeamMemberSerializer, AnnouncementSerializer
+    PlanSerializer, TeamMemberSerializer, AnnouncementSerializer,
+    DailyPassSerializer
 )
 
 
@@ -193,6 +194,11 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
+class DailyPassViewSet(viewsets.ModelViewSet):
+    queryset = DailyPass.objects.all()
+    serializer_class = DailyPassSerializer
+
+
 @api_view(['GET'])
 def dashboard_stats(request):
     """Update all member statuses before calculating stats"""
@@ -224,12 +230,14 @@ def dashboard_stats(request):
     expiring_soon = expired_count + expiring_soon_count
     
     new_leads = Lead.objects.filter(status='pending').count()
+    daily_passes_today = DailyPass.objects.filter(date=today).count()
     
     return Response({
         'totalMembers': total_members,
         'activeMembers': active_members,
         'expiringSoon': expiring_soon,
-        'newLeads': new_leads
+        'newLeads': new_leads,
+        'dailyPassesToday': daily_passes_today
     })
 
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Edit2, Megaphone, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Trash2, Edit2, Megaphone, ToggleLeft, ToggleRight, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportToExcel';
 import { API_BASE_URL, apiFetch } from '../config';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
@@ -114,13 +115,27 @@ export const AnnouncementsPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Announcements</h1>
           <p className="text-sm text-gray-500 mt-1">Manage gym announcements displayed on the homepage</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
-        >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          New Announcement
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportToExcel(announcements, [
+              { header: 'Title', key: 'title' },
+              { header: 'Message', key: 'message' },
+              { header: 'Status', key: 'is_active', transform: (v: any) => v ? 'Active' : 'Inactive' },
+              { header: 'Created', key: 'created_at', transform: (v: any) => new Date(v).toLocaleDateString() },
+            ], 'Sinen_Announcements_Report')}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 border border-orange-500/30 text-orange-500 font-black uppercase rounded-full hover:bg-orange-500/10 transition-colors text-sm sm:text-base"
+          >
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+            Export Excel
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
+          >
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            New Announcement
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">

@@ -2,6 +2,7 @@ import React from 'react';
 import { Lead } from '../types';
 import { Phone, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface Props {
   leads: Lead[];
@@ -13,7 +14,7 @@ export const LeadsTable: React.FC<Props> = ({ leads, onRefresh }) => {
   const toggleStatus = async (id: number, currentStatus: string) => {
     const nextStatus = currentStatus === 'pending' ? 'contacted' : 'pending';
     try {
-      const res = await fetch(`/api/leads/${id}/status`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/leads/${id}/status/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: nextStatus }),
@@ -31,7 +32,7 @@ export const LeadsTable: React.FC<Props> = ({ leads, onRefresh }) => {
       <div className="p-6 border-b border-white/10 flex items-center justify-between">
         <h3 className="font-black text-white uppercase tracking-tight">Recent Trial Requests</h3>
         <button 
-          onClick={() => navigate('/leads')}
+          onClick={() => navigate('/admin/leads')}
           className="text-xs font-black text-orange-500 hover:text-orange-400 uppercase tracking-wider"
         >
           View All

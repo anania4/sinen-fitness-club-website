@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="{% static 'img/sinen_logo.png' %}" style="height: 40px; vertical-align: middle; margin-right: 10px;" alt="Sinen Fitness Logo" />
+        Sinen Fitness Admin
+    </a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Custom Sinen Fitness Club styling */
+    #header {
+        background-color: #000000;
+        color: #f97316;
+    }
+    #branding h1 {
+        color: #f97316;
+        font-style: italic;
+    }
+    #branding h1 a:link, #branding h1 a:visited {
+        color: #f97316;
+    }
+    div.breadcrumbs {
+        background-color: #18181b; /* zinc-900 */
+        color: #a1a1aa; /* zinc-400 */
+    }
+    div.breadcrumbs a {
+        color: #f97316;
+    }
+    .module h2, .module caption, .inline-group h2 {
+        background: #f97316;
+        color: #000;
+    }
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: #f97316;
+        color: #000;
+    }
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: #ea580c; /* hover orange */
+    }
+</style>
+{% endblock %}

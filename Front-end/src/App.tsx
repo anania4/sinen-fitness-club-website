@@ -11,6 +11,7 @@ import { TeamPage } from './pages/TeamPage';
 import { TelegramPage } from './pages/TelegramPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AnnouncementsPage } from './pages/AnnouncementsPage';
+import { DailyPassesPage } from './pages/DailyPassesPage';
 import { LoginPage } from './pages/LoginPage';
 import AdminLayout from './AdminLayout';
 import { AuthProvider } from './contexts/AuthContext';
@@ -39,6 +40,7 @@ export default function App() {
               <Route path="leads" element={<LeadsPage />} />
               <Route path="plans" element={<PlansPage />} />
               <Route path="payments" element={<PaymentsPage />} />
+              <Route path="daily-passes" element={<DailyPassesPage />} />
               <Route path="announcements" element={<AnnouncementsPage />} />
               <Route path="team" element={<TeamPage />} />
               <Route path="telegram" element={<TelegramPage />} />

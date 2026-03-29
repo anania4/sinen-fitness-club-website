@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, Settings, TelegramReminder
+from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, Settings, TelegramReminder, DailyPass
 from django.utils import timezone
 
 
@@ -128,3 +128,10 @@ class TelegramReminderSerializer(serializers.ModelSerializer):
         fields = ['id', 'member', 'member_name', 'reminder_type', 'sent_at', 
                   'message', 'success', 'error_message']
         read_only_fields = ['id', 'sent_at']
+
+
+class DailyPassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyPass
+        fields = ['id', 'name', 'phone', 'date', 'amount', 'payment_method', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']

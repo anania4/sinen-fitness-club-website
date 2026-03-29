@@ -11,7 +11,8 @@ import {
   Dumbbell,
   Users as UsersIcon,
   Megaphone,
-  LogOut
+  LogOut,
+  Ticket
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -23,6 +24,7 @@ const menuItems = [
   { icon: CreditCard, label: 'Payments', path: '/admin/payments' },
   { icon: Megaphone, label: 'Announcements', path: '/admin/announcements' },
   { icon: UsersIcon, label: 'Sinen Team', path: '/admin/team' },
+  { icon: Ticket, label: 'Daily Passes', path: '/admin/daily-passes' },
   { icon: Send, label: 'Telegram Reminders', path: '/admin/telegram' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];

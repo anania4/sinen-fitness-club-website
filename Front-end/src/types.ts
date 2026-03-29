@@ -3,6 +3,16 @@ export interface DashboardStats {
   activeMembers: number;
   expiringSoon: number;
   newLeads: number;
+  dailyPassesToday: number;
+}
+
+export interface DailyPass {
+  id: number;
+  name: string;
+  phone: string;
+  date: string;
+  amount: string;
+  payment_method: string;
 }
 
 export interface Member {

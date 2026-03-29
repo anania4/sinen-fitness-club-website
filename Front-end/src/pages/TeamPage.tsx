@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Search, Users as UsersIcon, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Users as UsersIcon, X, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportToExcel';
 import { API_BASE_URL, apiFetch } from '../config';
 
 interface TeamMember {
@@ -71,13 +72,26 @@ export const TeamPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Sinen Team</h1>
-        <button
-          onClick={() => { setEditingMember(null); setShowModal(true); }}
-          className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
-        >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          Add Member
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportToExcel(filteredTeam, [
+              { header: 'Name', key: 'name' },
+              { header: 'Role', key: 'role' },
+              { header: 'Fitness Group', key: 'fitness_group' },
+            ], 'Sinen_Team_Report')}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 border border-orange-500/30 text-orange-500 font-black uppercase rounded-full hover:bg-orange-500/10 transition-colors text-sm sm:text-base"
+          >
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+            Export Excel
+          </button>
+          <button
+            onClick={() => { setEditingMember(null); setShowModal(true); }}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
+          >
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            Add Member
+          </button>
+        </div>
       </div>
 
       <div className="relative">

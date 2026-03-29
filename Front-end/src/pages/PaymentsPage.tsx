@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Payment } from '../types';
-import { Plus, Trash2, Search, CreditCard } from 'lucide-react';
+import { Plus, Trash2, Search, CreditCard, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportToExcel';
 import { RecordPaymentModal } from '../components/RecordPaymentModal';
 import { API_BASE_URL, apiFetch } from '../config';
 
@@ -61,13 +62,27 @@ export const PaymentsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Payments</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
-        >
-          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          Record Payment
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => exportToExcel(filteredPayments, [
+              { header: 'Member', key: 'member_name' },
+              { header: 'Amount (ETB)', key: 'amount', transform: (v: any) => parseFloat(v) },
+              { header: 'Date', key: 'date' },
+              { header: 'Method', key: 'method' },
+            ], 'Sinen_Payments_Report')}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 border border-orange-500/30 text-orange-500 font-black uppercase rounded-full hover:bg-orange-500/10 transition-colors text-sm sm:text-base"
+          >
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+            Export Excel
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-orange-500 text-black font-black uppercase rounded-full hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 text-sm sm:text-base"
+          >
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            Record Payment
+          </button>
+        </div>
       </div>
 
       <div className="bg-zinc-900 rounded-[2rem] p-6 border border-white/10">
