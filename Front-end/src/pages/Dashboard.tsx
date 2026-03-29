@@ -7,7 +7,7 @@ import { RevenueChart } from '../components/RevenueChart';
 import { DashboardNotifications } from '../components/DashboardNotifications';
 import { DashboardStats, Member, Lead, Payment, RevenueData } from '../types';
 import { Users, UserCheck, Clock, UserPlus } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface Props {
   onRefresh: () => void;
@@ -24,11 +24,11 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
   const fetchData = async () => {
     try {
       const [statsRes, expiringRes, leadsRes, paymentsRes, revenueRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/dashboard/stats`),
-        fetch(`${API_BASE_URL}/api/dashboard/expiring-members`),
-        fetch(`${API_BASE_URL}/api/dashboard/leads`),
-        fetch(`${API_BASE_URL}/api/dashboard/payments`),
-        fetch(`${API_BASE_URL}/api/dashboard/revenue`)
+        apiFetch(`${API_BASE_URL}/api/dashboard/stats`),
+        apiFetch(`${API_BASE_URL}/api/dashboard/expiring-members`),
+        apiFetch(`${API_BASE_URL}/api/dashboard/leads`),
+        apiFetch(`${API_BASE_URL}/api/dashboard/payments`),
+        apiFetch(`${API_BASE_URL}/api/dashboard/revenue`)
       ]);
 
       const [statsData, expiringData, leadsData, paymentsData, revenueData] = await Promise.all([

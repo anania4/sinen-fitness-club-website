@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export const NewMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
 
   useEffect(() => {
     if (isOpen) {
-      fetch(`${API_BASE_URL}/api/plans/`)
+      apiFetch(`${API_BASE_URL}/api/plans/`)
         .then(res => res.json())
         .then(data => {
           const plansArray = Array.isArray(data) ? data : (data.results || []);
@@ -61,9 +61,8 @@ export const NewMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/members/`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/members/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           name, 
           phone,

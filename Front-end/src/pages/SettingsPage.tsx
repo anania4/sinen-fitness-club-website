@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, RefreshCw, AlertCircle, MessageSquare } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 export const SettingsPage: React.FC = () => {
   const [settings, setSettings] = useState({
@@ -20,7 +20,7 @@ export const SettingsPage: React.FC = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/settings/`);
+      const res = await apiFetch(`${API_BASE_URL}/api/settings/`);
       if (res.ok) {
         const data = await res.json();
         setSettings(data);
@@ -35,9 +35,8 @@ export const SettingsPage: React.FC = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/settings/1/`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/settings/1/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
       

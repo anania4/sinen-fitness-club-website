@@ -4,7 +4,7 @@ import { UserPlus, Edit, Trash2, Search } from 'lucide-react';
 import { NewMemberModal } from '../components/NewMemberModal';
 import { EditMemberModal } from '../components/EditMemberModal';
 import { MemberDetailsModal } from '../components/MemberDetailsModal';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 export const MembersPage: React.FC = () => {
   const [members, setMembers] = useState<Member[]>([]);
@@ -18,7 +18,7 @@ export const MembersPage: React.FC = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/members/`);
+      const res = await apiFetch(`${API_BASE_URL}/api/members//`);
       const data = await res.json();
       const membersArray = Array.isArray(data) ? data : (data.results || []);
       setMembers(membersArray);
@@ -45,7 +45,7 @@ export const MembersPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this member?')) return;
     try {
-      await fetch(`${API_BASE_URL}/api/members/${id}/`, { method: 'DELETE' });
+      await apiFetch(`${API_BASE_URL}/api/members/${id}/`, { method: 'DELETE' });
       fetchMembers();
     } catch (error) {
       console.error('Error deleting member:', error);

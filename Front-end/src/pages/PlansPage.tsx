@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Dumbbell, X } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface Plan {
   id: number;
@@ -20,7 +20,7 @@ export const PlansPage: React.FC = () => {
   const fetchPlans = async () => {
     try {
       setError('');
-      const res = await fetch(`${API_BASE_URL}/api/plans/`);
+      const res = await apiFetch(`${API_BASE_URL}/api/plans/`);
       if (!res.ok) {
         throw new Error(`Failed to fetch plans: ${res.status} ${res.statusText}`);
       }
@@ -43,7 +43,7 @@ export const PlansPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this plan?')) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/plans/${id}/`, { method: 'DELETE' });
+      const res = await apiFetch(`${API_BASE_URL}/api/plans/${id}/`, { method: 'DELETE' });
       if (!res.ok) {
         throw new Error('Failed to delete plan');
       }
@@ -182,9 +182,8 @@ const PlanModal: React.FC<PlanModalProps> = ({ isOpen, onClose, onSuccess, plan 
     try {
       const url = plan ? `${API_BASE_URL}/api/plans/${plan.id}/` : `${API_BASE_URL}/api/plans/`;
       const method = plan ? 'PATCH' : 'POST';
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, price: parseFloat(price), duration, features }),
       });
       if (!res.ok) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, AlertCircle, AlertTriangle, Info, CheckCircle, X } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 import { AnimatePresence, motion } from 'motion/react';
 
 interface Notification {
@@ -43,9 +43,9 @@ export const NotificationBell: React.FC = () => {
     setLoading(true);
     try {
       const [statsRes, expiringRes, leadsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/dashboard/stats`),
-        fetch(`${API_BASE_URL}/api/dashboard/expiring-members`),
-        fetch(`${API_BASE_URL}/api/dashboard/leads`)
+        apiFetch(`${API_BASE_URL}/api/dashboard/stats`),
+        apiFetch(`${API_BASE_URL}/api/dashboard/expiring-members`),
+        apiFetch(`${API_BASE_URL}/api/dashboard/leads`)
       ]);
 
       const [stats, expiringMembers, leads] = await Promise.all([

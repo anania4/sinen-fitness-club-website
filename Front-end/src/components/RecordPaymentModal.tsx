@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -24,7 +24,7 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
 
   useEffect(() => {
     if (isOpen) {
-      fetch(`${API_BASE_URL}/api/members/`)
+      apiFetch(`${API_BASE_URL}/api/members/`)
         .then(res => res.json())
         .then(data => {
           // Handle both array and paginated response
@@ -42,9 +42,8 @@ export const RecordPaymentModal: React.FC<Props> = ({ isOpen, onClose, onSuccess
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/payments/`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/payments/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           member_name: memberName, 
           amount: parseFloat(amount), 

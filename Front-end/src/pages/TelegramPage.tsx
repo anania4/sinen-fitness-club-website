@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Send, MessageSquare, Users, Settings as SettingsIcon, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface TelegramSettings {
   telegram_bot_token: string;
@@ -44,7 +44,7 @@ export const TelegramPage: React.FC = () => {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/settings/`);
+      const res = await apiFetch(`${API_BASE_URL}/api/settings/`);
       if (res.ok) {
         const data = await res.json();
         setSettings(data);
@@ -59,7 +59,7 @@ export const TelegramPage: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/telegram/stats`);
+      const res = await apiFetch(`${API_BASE_URL}/api/telegram/stats`);
       if (res.ok) {
         const data = await res.json();
         setStats(data);
@@ -73,9 +73,8 @@ export const TelegramPage: React.FC = () => {
     if (!message.trim()) return;
     setSending(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/telegram/test`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/telegram/test`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })
       });
       
@@ -101,7 +100,7 @@ export const TelegramPage: React.FC = () => {
     
     setSending(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/telegram/send-reminders`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/telegram/send-reminders`, {
         method: 'POST'
       });
       

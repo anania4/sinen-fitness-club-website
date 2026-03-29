@@ -1,14 +1,87 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count, Sum, Q
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 from datetime import timedelta
 from .models import Member, Lead, Payment, Plan, TeamMember, Announcement
 from .serializers import (
     MemberSerializer, LeadSerializer, PaymentSerializer, 
     PlanSerializer, TeamMemberSerializer, AnnouncementSerializer
 )
+
+
+# ─── Auth Views ─────────────────────────────────────────────
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    """Authenticate user with username and password"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response(
+            {'error': 'Username and password are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None:
+        if user.is_staff:
+            login(request, user)
+            return Response({
+                'success': True,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'is_staff': user.is_staff,
+                }
+            })
+        else:
+            return Response(
+                {'error': 'You do not have admin access'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    else:
+        return Response(
+            {'error': 'Invalid username or password'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout_view(request):
+    """Log out the current user"""
+    logout(request)
+    return Response({'success': True})
+
+
+@api_view(['GET'])
+@ensure_csrf_cookie
+@permission_classes([AllowAny])
+def check_auth(request):
+    """Check if the current user is authenticated"""
+    if request.user.is_authenticated and request.user.is_staff:
+        return Response({
+            'authenticated': True,
+            'user': {
+                'id': request.user.id,
+                'username': request.user.username,
+                'email': request.user.email,
+                'is_staff': request.user.is_staff,
+            }
+        })
+    return Response({'authenticated': False}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+# ─── ViewSets ───────────────────────────────────────────────
 
 
 class MemberViewSet(viewsets.ModelViewSet):
@@ -69,6 +142,12 @@ class LeadViewSet(viewsets.ModelViewSet):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
 
+    def get_permissions(self):
+        """Allow public lead creation (registration form)"""
+        if self.action == 'create':
+            return [AllowAny()]
+        return super().get_permissions()
+
     @action(detail=True, methods=['patch'])
     def status(self, request, pk=None):
         lead = self.get_object()
@@ -89,6 +168,12 @@ class PlanViewSet(viewsets.ModelViewSet):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
 
+    def get_permissions(self):
+        """Allow public plan listing (pricing page)"""
+        if self.action == 'list':
+            return [AllowAny()]
+        return super().get_permissions()
+
 
 class TeamMemberViewSet(viewsets.ModelViewSet):
     queryset = TeamMember.objects.all()
@@ -98,6 +183,12 @@ class TeamMemberViewSet(viewsets.ModelViewSet):
 class AnnouncementViewSet(viewsets.ModelViewSet):
     queryset = Announcement.objects.all()
     serializer_class = AnnouncementSerializer
+
+    def get_permissions(self):
+        """Allow public announcement listing (homepage)"""
+        if self.action == 'list':
+            return [AllowAny()]
+        return super().get_permissions()
 
 
 @api_view(['GET'])

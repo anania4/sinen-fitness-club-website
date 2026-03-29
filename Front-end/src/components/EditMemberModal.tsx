@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Member } from '../types';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
       setPaymentStatus(member.payment_status);
       setStatus(member.status);
       
-      fetch(`${API_BASE_URL}/api/plans/`)
+      apiFetch(`${API_BASE_URL}/api/plans/`)
         .then(res => res.json())
         .then(data => {
           const plansArray = Array.isArray(data) ? data : (data.results || []);
@@ -72,9 +72,8 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
     if (!member) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/members/${member.id}/`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/members/${member.id}/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           name, 
           phone,

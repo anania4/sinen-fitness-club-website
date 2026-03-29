@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, Edit2, Megaphone, ToggleLeft, ToggleRight } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, apiFetch } from '../config';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 
@@ -23,7 +23,7 @@ export const AnnouncementsPage: React.FC = () => {
 
   const fetchAnnouncements = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/announcements/`);
+      const res = await apiFetch(`${API_BASE_URL}/api/announcements/`);
       const data = await res.json();
       const announcementsArray = Array.isArray(data) ? data : (data.results || []);
       setAnnouncements(announcementsArray);
@@ -47,9 +47,8 @@ export const AnnouncementsPage: React.FC = () => {
       
       const method = editingAnnouncement ? 'PATCH' : 'POST';
       
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, message, is_active: isActive }),
       });
       
@@ -65,7 +64,7 @@ export const AnnouncementsPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this announcement?')) return;
     try {
-      await fetch(`${API_BASE_URL}/api/announcements/${id}/`, { method: 'DELETE' });
+      await apiFetch(`${API_BASE_URL}/api/announcements/${id}/`, { method: 'DELETE' });
       fetchAnnouncements();
     } catch (error) {
       console.error('Error deleting announcement:', error);
@@ -74,9 +73,8 @@ export const AnnouncementsPage: React.FC = () => {
 
   const handleToggleActive = async (announcement: Announcement) => {
     try {
-      await fetch(`${API_BASE_URL}/api/announcements/${announcement.id}/`, {
+      await apiFetch(`${API_BASE_URL}/api/announcements/${announcement.id}/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !announcement.is_active }),
       });
       fetchAnnouncements();

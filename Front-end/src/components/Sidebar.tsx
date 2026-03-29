@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -10,8 +10,10 @@ import {
   Settings,
   Dumbbell,
   Users as UsersIcon,
-  Megaphone
+  Megaphone,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -27,6 +29,15 @@ const menuItems = [
 
 export const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
+  const initials = user?.username?.slice(0, 2).toUpperCase() || 'AD';
 
   return (
     <>
@@ -89,12 +100,19 @@ export const Sidebar: React.FC = () => {
         <div className="p-6 border-t border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center font-black text-black text-sm">
-              AD
+              {initials}
             </div>
-            <div>
-              <p className="text-sm font-bold">Admin</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold truncate">{user?.username || 'Admin'}</p>
               <p className="text-xs text-gray-500">Gym Manager</p>
             </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="p-2 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
