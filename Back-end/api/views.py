@@ -32,7 +32,7 @@ def login_view(request):
     user = authenticate(request, username=username, password=password)
     
     if user is not None:
-        if user.is_staff:
+        if user.is_superuser:
             login(request, user)
             return Response({
                 'success': True,
@@ -41,11 +41,12 @@ def login_view(request):
                     'username': user.username,
                     'email': user.email,
                     'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser,
                 }
             })
         else:
             return Response(
-                {'error': 'You do not have admin access'},
+                {'error': 'You do not have superuser access'},
                 status=status.HTTP_403_FORBIDDEN
             )
     else:
@@ -68,7 +69,7 @@ def logout_view(request):
 @permission_classes([AllowAny])
 def check_auth(request):
     """Check if the current user is authenticated"""
-    if request.user.is_authenticated and request.user.is_staff:
+    if request.user.is_authenticated and request.user.is_superuser:
         return Response({
             'authenticated': True,
             'user': {
@@ -76,6 +77,7 @@ def check_auth(request):
                 'username': request.user.username,
                 'email': request.user.email,
                 'is_staff': request.user.is_staff,
+                'is_superuser': request.user.is_superuser,
             }
         })
     return Response({'authenticated': False}, status=status.HTTP_401_UNAUTHORIZED)
