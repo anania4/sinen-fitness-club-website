@@ -186,3 +186,28 @@ class DailyPass(models.Model):
     def __str__(self):
         return f"{self.name} - {self.date}"
 
+
+class Attendance(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='attendance_records')
+    check_in = models.DateTimeField(default=timezone.now)
+    check_out = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-check_in']
+
+    @property
+    def is_checked_in(self):
+        return self.check_out is None
+
+    @property
+    def duration_minutes(self):
+        if self.check_out:
+            delta = self.check_out - self.check_in
+            return int(delta.total_seconds() / 60)
+        delta = timezone.now() - self.check_in
+        return int(delta.total_seconds() / 60)
+
+    def __str__(self):
+        return f"{self.member.name} - {self.check_in.strftime('%Y-%m-%d %H:%M')}"
+
+

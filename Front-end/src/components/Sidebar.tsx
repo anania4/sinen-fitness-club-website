@@ -12,13 +12,15 @@ import {
   Users as UsersIcon,
   Megaphone,
   LogOut,
-  Ticket
+  Ticket,
+  ClipboardCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: Users, label: 'Members', path: '/admin/members' },
+  { icon: ClipboardCheck, label: 'Attendance', path: '/admin/attendance' },
   { icon: UserPlus, label: 'Leads', path: '/admin/leads' },
   { icon: Dumbbell, label: 'Plans', path: '/admin/plans' },
   { icon: CreditCard, label: 'Payments', path: '/admin/payments' },

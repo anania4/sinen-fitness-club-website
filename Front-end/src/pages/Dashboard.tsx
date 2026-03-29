@@ -6,7 +6,7 @@ import { RecentPaymentsTable } from '../components/RecentPaymentsTable';
 import { RevenueChart } from '../components/RevenueChart';
 import { DashboardNotifications } from '../components/DashboardNotifications';
 import { DashboardStats, Member, Lead, Payment, RevenueData } from '../types';
-import { Users, UserCheck, Clock, UserPlus, Ticket } from 'lucide-react';
+import { Users, UserCheck, Clock, UserPlus, Ticket, Activity } from 'lucide-react';
 import { API_BASE_URL, apiFetch } from '../config';
 
 interface Props {
@@ -85,7 +85,7 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6">
         <StatCard 
           title="Total Members" 
           value={stats?.totalMembers || 0} 
@@ -98,6 +98,13 @@ export const Dashboard: React.FC<Props> = ({ onRefresh }) => {
           value={stats?.activeMembers || 0} 
           icon={UserCheck} 
           description="Members with active plans"
+          color="bg-orange-500"
+        />
+        <StatCard 
+          title="In Gym Now" 
+          value={stats?.currentlyInGym || 0} 
+          icon={Activity} 
+          description="Currently checked in"
           color="bg-orange-500"
         />
         <StatCard 

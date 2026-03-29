@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, Settings, TelegramReminder, DailyPass
+from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, Settings, TelegramReminder, DailyPass, Attendance
 from django.utils import timezone
 
 
@@ -135,3 +135,18 @@ class DailyPassSerializer(serializers.ModelSerializer):
         model = DailyPass
         fields = ['id', 'name', 'phone', 'date', 'amount', 'payment_method', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class AttendanceSerializer(serializers.ModelSerializer):
+    member_name = serializers.CharField(source='member.name', read_only=True)
+    member_phone = serializers.CharField(source='member.phone', read_only=True)
+    member_status = serializers.CharField(source='member.status', read_only=True)
+    is_checked_in = serializers.BooleanField(read_only=True)
+    duration_minutes = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Attendance
+        fields = ['id', 'member', 'member_name', 'member_phone', 'member_status',
+                  'check_in', 'check_out', 'is_checked_in', 'duration_minutes']
+        read_only_fields = ['id', 'check_in', 'check_out', 'is_checked_in', 'duration_minutes']
+

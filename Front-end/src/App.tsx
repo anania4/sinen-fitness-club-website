@@ -12,6 +12,7 @@ import { TelegramPage } from './pages/TelegramPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AnnouncementsPage } from './pages/AnnouncementsPage';
 import { DailyPassesPage } from './pages/DailyPassesPage';
+import { AttendancePage } from './pages/AttendancePage';
 import { LoginPage } from './pages/LoginPage';
 import AdminLayout from './AdminLayout';
 import { AuthProvider } from './contexts/AuthContext';
@@ -37,6 +38,7 @@ export default function App() {
         }>
             <Route index element={<Dashboard key={refreshTrigger} onRefresh={handleRefresh} />} />
               <Route path="members" element={<MembersPage />} />
+              <Route path="attendance" element={<AttendancePage />} />
               <Route path="leads" element={<LeadsPage />} />
               <Route path="plans" element={<PlansPage />} />
               <Route path="payments" element={<PaymentsPage />} />

@@ -4,6 +4,7 @@ export interface DashboardStats {
   expiringSoon: number;
   newLeads: number;
   dailyPassesToday: number;
+  currentlyInGym: number;
 }
 
 export interface DailyPass {

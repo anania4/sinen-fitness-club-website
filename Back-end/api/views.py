@@ -7,11 +7,11 @@ from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from datetime import timedelta
-from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, DailyPass
+from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, DailyPass, Attendance
 from .serializers import (
     MemberSerializer, LeadSerializer, PaymentSerializer, 
     PlanSerializer, TeamMemberSerializer, AnnouncementSerializer,
-    DailyPassSerializer
+    DailyPassSerializer, AttendanceSerializer
 )
 
 
@@ -199,6 +199,62 @@ class DailyPassViewSet(viewsets.ModelViewSet):
     serializer_class = DailyPassSerializer
 
 
+class AttendanceViewSet(viewsets.ModelViewSet):
+    queryset = Attendance.objects.all()
+    serializer_class = AttendanceSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # Filter by date if provided
+        date_filter = self.request.query_params.get('date')
+        if date_filter:
+            qs = qs.filter(check_in__date=date_filter)
+        # Filter currently checked-in only
+        checked_in = self.request.query_params.get('checked_in')
+        if checked_in == 'true':
+            qs = qs.filter(check_out__isnull=True)
+        return qs
+
+    @action(detail=False, methods=['post'], url_path='check-in')
+    def check_in(self, request):
+        member_id = request.data.get('member_id')
+        if not member_id:
+            return Response({'error': 'member_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            member = Member.objects.get(pk=member_id)
+        except Member.DoesNotExist:
+            return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Validate member is active
+        if member.status != 'active':
+            return Response(
+                {'error': f'Member is {member.status}. Only active members can check in.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if already checked in
+        active_visit = Attendance.objects.filter(member=member, check_out__isnull=True).first()
+        if active_visit:
+            return Response(
+                {'error': f'{member.name} is already checked in since {active_visit.check_in.strftime("%H:%M")}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        attendance = Attendance.objects.create(member=member)
+        return Response(AttendanceSerializer(attendance).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], url_path='check-out')
+    def check_out(self, request, pk=None):
+        attendance = self.get_object()
+        if attendance.check_out is not None:
+            return Response({'error': 'Already checked out'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        attendance.check_out = timezone.now()
+        attendance.save()
+        return Response(AttendanceSerializer(attendance).data)
+
+
 @api_view(['GET'])
 def dashboard_stats(request):
     """Update all member statuses before calculating stats"""
@@ -232,12 +288,15 @@ def dashboard_stats(request):
     new_leads = Lead.objects.filter(status='pending').count()
     daily_passes_today = DailyPass.objects.filter(date=today).count()
     
+    currently_in_gym = Attendance.objects.filter(check_out__isnull=True).count()
+    
     return Response({
         'totalMembers': total_members,
         'activeMembers': active_members,
         'expiringSoon': expiring_soon,
         'newLeads': new_leads,
-        'dailyPassesToday': daily_passes_today
+        'dailyPassesToday': daily_passes_today,
+        'currentlyInGym': currently_in_gym
     })
 
 

@@ -12,6 +12,7 @@ router.register(r'announcements', views.AnnouncementViewSet)
 router.register(r'settings', views.SettingsViewSet)
 router.register(r'telegram-reminders', views.TelegramReminderViewSet)
 router.register(r'daily-passes', views.DailyPassViewSet)
+router.register(r'attendance', views.AttendanceViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
