@@ -31,6 +31,22 @@ A full-stack gym management platform built for **Sinen Fitness Club** to digitiz
 4.  `pip install -r requirements.txt`
 5.  `python manage.py runserver`
 
+### Running in Production
+
+#### Windows (Waitress)
+To run the production server on Windows:
+```bash
+cd Back-end
+waitress-serve --port=8000 sinengym.wsgi:application
+```
+
+#### Linux (Gunicorn)
+To run the production server on Linux:
+```bash
+cd Back-end
+gunicorn sinengym.wsgi:application --bind 0.0.0.0:8000
+```
+
 ### Frontend
 1.  `cd Front-end`
 2.  `npm install`
