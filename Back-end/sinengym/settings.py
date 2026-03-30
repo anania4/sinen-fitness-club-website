@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-pyqhb2ra6(7%x_dc5$e8d4@6z-o5&6w=w%8ikccsov%o6-1lc*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sinen-fitness-club-website-production.up.railway.app', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -141,6 +141,8 @@ REST_FRAMEWORK = {
 
 # CSRF trusted origins (for session auth with frontend)
 CSRF_TRUSTED_ORIGINS = [
+    'https://sinen-fitness-club-website-production.up.railway.app',
+    'http://sinen-fitness-club-website-production.up.railway.app',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5173',
@@ -149,6 +151,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
+    'https://sinen-fitness-club-website-production.up.railway.app',
+    'http://sinen-fitness-club-website-production.up.railway.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
