@@ -13,7 +13,8 @@ import {
   Megaphone,
   LogOut,
   Ticket,
-  ClipboardCheck
+  ClipboardCheck,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,11 +22,12 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: Users, label: 'Members', path: '/admin/members' },
   { icon: ClipboardCheck, label: 'Attendance', path: '/admin/attendance' },
+  { icon: UserCheck, label: 'Staff Attendance', path: '/admin/staff-attendance' },
   { icon: UserPlus, label: 'Leads', path: '/admin/leads' },
   { icon: Dumbbell, label: 'Plans', path: '/admin/plans' },
   { icon: CreditCard, label: 'Payments', path: '/admin/payments' },
   { icon: Megaphone, label: 'Announcements', path: '/admin/announcements' },
-  { icon: UsersIcon, label: 'Sinen Team', path: '/admin/team' },
+  { icon: UsersIcon, label: 'Sinen Staff', path: '/admin/team' },
   { icon: Ticket, label: 'Daily Passes', path: '/admin/daily-passes' },
   { icon: Send, label: 'Telegram Reminders', path: '/admin/telegram' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },

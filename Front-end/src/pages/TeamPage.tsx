@@ -8,6 +8,10 @@ interface TeamMember {
   name: string;
   role: string;
   fitness_group: string;
+  staff_id?: string;
+  pin?: string;
+  is_active?: boolean;
+  show_on_frontend?: boolean;
 }
 
 export const TeamPage: React.FC = () => {
@@ -46,7 +50,7 @@ export const TeamPage: React.FC = () => {
   }, [searchTerm, team]);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to remove this team member?')) return;
+    if (!confirm('Are you sure you want to remove this staff member?')) return;
     try {
       await apiFetch(`${API_BASE_URL}/api/team/${id}/`, { method: 'DELETE' });
       fetchTeam();
@@ -71,14 +75,14 @@ export const TeamPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Sinen Team</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase italic text-white">Sinen Staff</h1>
         <div className="flex gap-3">
           <button
             onClick={() => exportToExcel(filteredTeam, [
               { header: 'Name', key: 'name' },
               { header: 'Role', key: 'role' },
               { header: 'Fitness Group', key: 'fitness_group' },
-            ], 'Sinen_Team_Report')}
+            ], 'Sinen_Staff_Report')}
             className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 border border-orange-500/30 text-orange-500 font-black uppercase rounded-full hover:bg-orange-500/10 transition-colors text-sm sm:text-base"
           >
             <Download className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -98,7 +102,7 @@ export const TeamPage: React.FC = () => {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
         <input
           type="text"
-          placeholder="Search team members..."
+          placeholder="Search staff members..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-12 pr-4 py-3 rounded-2xl border border-white/10 bg-zinc-900 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
@@ -147,7 +151,7 @@ export const TeamPage: React.FC = () => {
 
       {filteredTeam.length === 0 && (
         <div className="text-center py-12 text-gray-500">
-          No team members found
+          No staff members found
         </div>
       )}
 
@@ -167,6 +171,10 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess, membe
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [fitnessGroup, setFitnessGroup] = useState('');
+  const [staffId, setStaffId] = useState('');
+  const [pin, setPin] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [showOnFrontend, setShowOnFrontend] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -174,10 +182,18 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess, membe
       setName(member.name);
       setRole(member.role);
       setFitnessGroup(member.fitness_group);
+      setStaffId(member.staff_id || '');
+      setPin(''); // Don't pre-fill PIN for security
+      setIsActive(member.is_active ?? true);
+      setShowOnFrontend(member.show_on_frontend ?? false);
     } else {
       setName('');
       setRole('');
       setFitnessGroup('');
+      setStaffId('');
+      setPin('');
+      setIsActive(true);
+      setShowOnFrontend(false);
     }
   }, [member]);
 
@@ -187,9 +203,28 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess, membe
     try {
       const url = member ? `${API_BASE_URL}/api/team/${member.id}/` : `${API_BASE_URL}/api/team/`;
       const method = member ? 'PATCH' : 'POST';
+      
+      const payload: any = { 
+        name, 
+        role, 
+        fitness_group: fitnessGroup,
+        is_active: isActive,
+        show_on_frontend: showOnFrontend
+      };
+      
+      // Only include staff_id if provided
+      if (staffId.trim()) {
+        payload.staff_id = staffId;
+      }
+      
+      // Only include PIN if provided
+      if (pin.trim()) {
+        payload.pin = pin;
+      }
+      
       const res = await apiFetch(url, {
         method,
-        body: JSON.stringify({ name, role, fitness_group: fitnessGroup }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         onSuccess();
@@ -208,7 +243,7 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess, membe
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="bg-zinc-900 rounded-[2rem] shadow-xl w-full max-w-md overflow-hidden border border-white/10">
         <div className="p-6 border-b border-white/10 flex items-center justify-between">
-          <h3 className="text-lg font-black text-white uppercase">{member ? 'Edit Team Member' : 'Add Team Member'}</h3>
+          <h3 className="text-lg font-black text-white uppercase">{member ? 'Edit Staff Member' : 'Add Staff Member'}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <X className="w-5 h-5" />
           </button>
@@ -249,6 +284,60 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess, membe
               className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
               placeholder="e.g. Strength & Conditioning"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">
+              Staff ID {member ? `(Current: ${member.staff_id || 'Auto-generated'})` : '(Auto-generated)'}
+            </label>
+            <input
+              type="text"
+              value={staffId}
+              onChange={(e) => setStaffId(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+              placeholder="Leave empty for auto-generation (001, 002, 003...)"
+            />
+            <p className="text-xs text-gray-500 mt-1">Simple numeric ID for kiosk access. Leave empty to auto-generate.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">
+              PIN for Kiosk {member ? '(Leave empty to keep current)' : '(Optional)'}
+            </label>
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              maxLength={6}
+              className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+              placeholder="4-6 digit PIN"
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="w-4 h-4 text-orange-500 bg-black/50 border-white/10 rounded focus:ring-orange-500/20"
+            />
+            <label htmlFor="isActive" className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+              Active Staff Member
+            </label>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="showOnFrontend"
+              checked={showOnFrontend}
+              onChange={(e) => setShowOnFrontend(e.target.checked)}
+              className="w-4 h-4 text-orange-500 bg-black/50 border-white/10 rounded focus:ring-orange-500/20"
+            />
+            <label htmlFor="showOnFrontend" className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+              Show on Public Team Page
+            </label>
           </div>
           
           <div className="pt-4 flex gap-3">

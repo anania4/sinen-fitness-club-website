@@ -13,6 +13,10 @@ router.register(r'settings', views.SettingsViewSet)
 router.register(r'telegram-reminders', views.TelegramReminderViewSet)
 router.register(r'daily-passes', views.DailyPassViewSet)
 router.register(r'attendance', views.AttendanceViewSet)
+# Staff Attendance endpoints
+router.register(r'shift-types', views.ShiftTypeViewSet)
+router.register(r'shift-assignments', views.DailyShiftAssignmentViewSet)
+router.register(r'staff-attendance', views.StaffAttendanceViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -31,5 +35,9 @@ urlpatterns = [
     path('telegram/send-reminders', views.send_telegram_reminders, name='telegram-send-reminders'),
     path('telegram/send-announcement', views.send_announcement_telegram, name='telegram-send-announcement'),
     path('telegram/stats', views.telegram_stats, name='telegram-stats'),
+    # Staff Attendance endpoints
+    path('staff/verify-pin/', views.verify_staff_pin, name='verify-staff-pin'),
+    path('staff-attendance/kiosk-check-in/', views.kiosk_check_in, name='kiosk-check-in'),
+    path('staff-attendance/kiosk-check-out/', views.kiosk_check_out, name='kiosk-check-out'),
 ]
 

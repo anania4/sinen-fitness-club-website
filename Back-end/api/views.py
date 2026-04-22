@@ -7,11 +7,13 @@ from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from datetime import timedelta
-from .models import Member, Lead, Payment, Plan, TeamMember, Announcement, DailyPass, Attendance
+from .models import (Member, Lead, Payment, Plan, TeamMember, Announcement, DailyPass, 
+                     Attendance, ShiftType, DailyShiftAssignment, StaffAttendanceRecord)
 from .serializers import (
     MemberSerializer, LeadSerializer, PaymentSerializer, 
     PlanSerializer, TeamMemberSerializer, AnnouncementSerializer,
-    DailyPassSerializer, AttendanceSerializer
+    DailyPassSerializer, AttendanceSerializer, ShiftTypeSerializer,
+    DailyShiftAssignmentSerializer, StaffAttendanceRecordSerializer
 )
 
 
@@ -506,4 +508,287 @@ def telegram_stats(request):
         'total_sent': total_sent,
         'total_successful': total_successful,
         'success_rate': round((total_successful / total_sent * 100) if total_sent > 0 else 0, 1)
+    })
+# Staff Attendance Views
+
+class ShiftTypeViewSet(viewsets.ModelViewSet):
+    queryset = ShiftType.objects.all()
+    serializer_class = ShiftTypeSerializer
+
+
+class DailyShiftAssignmentViewSet(viewsets.ModelViewSet):
+    queryset = DailyShiftAssignment.objects.all()
+    serializer_class = DailyShiftAssignmentSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        date_filter = self.request.query_params.get('date')
+        if date_filter:
+            qs = qs.filter(assignment_date=date_filter)
+        return qs
+
+
+class StaffAttendanceViewSet(viewsets.ModelViewSet):
+    queryset = StaffAttendanceRecord.objects.all()
+    serializer_class = StaffAttendanceRecordSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        date_filter = self.request.query_params.get('date')
+        if date_filter:
+            qs = qs.filter(attendance_date=date_filter)
+        
+        staff_filter = self.request.query_params.get('staff')
+        if staff_filter:
+            qs = qs.filter(staff=staff_filter)
+            
+        checked_in = self.request.query_params.get('checked_in')
+        if checked_in == 'true':
+            qs = qs.filter(check_in_time__isnull=False, check_out_time__isnull=True)
+        
+        return qs
+
+    @action(detail=False, methods=['post'], url_path='check-in')
+    def check_in(self, request):
+        staff_id = request.data.get('staff_id')
+        shift_type_id = request.data.get('shift_type_id')
+        date = request.data.get('date', timezone.now().date())
+        
+        if not staff_id or not shift_type_id:
+            return Response({'error': 'staff_id and shift_type_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            staff = TeamMember.objects.get(pk=staff_id, is_active=True)
+            shift_type = ShiftType.objects.get(pk=shift_type_id, is_active=True)
+        except (TeamMember.DoesNotExist, ShiftType.DoesNotExist):
+            return Response({'error': 'Staff member or shift type not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if already checked in for any shift today
+        existing_checkin = StaffAttendanceRecord.objects.filter(
+            staff=staff, 
+            attendance_date=date,
+            check_in_time__isnull=False,
+            check_out_time__isnull=True
+        ).first()
+        
+        if existing_checkin:
+            return Response({
+                'error': f'{staff.name} is already checked in for {existing_checkin.assigned_shift_type.name}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get or create attendance record
+        record, created = StaffAttendanceRecord.objects.get_or_create(
+            staff=staff,
+            attendance_date=date,
+            assigned_shift_type=shift_type,
+            defaults={
+                'created_by': 'system',
+                'status': 'present'
+            }
+        )
+        
+        if record.check_in_time:
+            return Response({
+                'error': f'{staff.name} is already checked in for this shift'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        record.check_in_time = timezone.now()
+        record.status = 'present'  # Will be updated by status calculation logic
+        record.save()
+        
+        return Response(StaffAttendanceRecordSerializer(record).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], url_path='check-out')
+    def check_out(self, request, pk=None):
+        record = self.get_object()
+        
+        if not record.check_in_time:
+            return Response({'error': 'Staff member is not checked in'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if record.check_out_time:
+            return Response({'error': 'Already checked out'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        record.check_out_time = timezone.now()
+        record.status = 'present'  # Will be updated by status calculation logic
+        record.save()
+        
+        return Response(StaffAttendanceRecordSerializer(record).data)
+
+    @action(detail=False, methods=['get'], url_path='daily-summary')
+    def daily_summary(self, request):
+        date = request.query_params.get('date', timezone.now().date())
+        
+        shift_summaries = []
+        for shift_type in ShiftType.objects.filter(is_active=True):
+            records = StaffAttendanceRecord.objects.filter(
+                attendance_date=date,
+                assigned_shift_type=shift_type
+            )
+            
+            summary = {
+                'shift_type_name': shift_type.name,
+                'total_assigned': records.count(),
+                'present': records.filter(status='present').count(),
+                'late': records.filter(status='late').count(),
+                'early_leave': records.filter(status='early_leave').count(),
+                'absent': records.filter(status='absent').count(),
+                'incomplete': records.filter(status='incomplete').count(),
+            }
+            shift_summaries.append(summary)
+        
+        return Response({
+            'date': date,
+            'shift_summaries': shift_summaries
+        })
+
+
+@api_view(['POST'])
+def verify_staff_pin(request):
+    pin = request.data.get('pin')
+    
+    if not pin:
+        return Response({'error': 'PIN is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Find staff by PIN
+        staff = TeamMember.objects.get(pin=pin, is_active=True)
+        return Response({
+            'success': True,
+            'staff': {
+                'id': staff.id,
+                'name': staff.name,
+                'role': staff.role,
+                'staff_id': staff.staff_id
+            }
+        })
+    except TeamMember.DoesNotExist:
+        return Response({'error': 'Invalid PIN'}, status=status.HTTP_401_UNAUTHORIZED)
+    except TeamMember.MultipleObjectsReturned:
+        return Response({'error': 'Duplicate PIN found. Please contact admin.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def kiosk_check_in(request):
+    pin = request.data.get('pin')
+    date = request.data.get('date', timezone.now().date())
+    
+    if not pin:
+        return Response({'error': 'PIN is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Find staff by PIN
+        staff = TeamMember.objects.get(pin=pin, is_active=True)
+    except TeamMember.DoesNotExist:
+        return Response({'error': 'Invalid PIN'}, status=status.HTTP_404_NOT_FOUND)
+    except TeamMember.MultipleObjectsReturned:
+        return Response({'error': 'Duplicate PIN found. Please contact admin.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if already checked in
+    existing_record = StaffAttendanceRecord.objects.filter(
+        staff=staff,
+        attendance_date=date,
+        check_in_time__isnull=False,
+        check_out_time__isnull=True
+    ).first()
+    
+    if existing_record:
+        return Response({'error': 'Already checked in'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Determine current shift based on time
+    current_time = timezone.now().time()
+    
+    # Find appropriate shift type based on current time
+    shift_type = None
+    for shift in ShiftType.objects.filter(is_active=True).order_by('start_time'):
+        if shift.start_time <= current_time <= shift.end_time:
+            shift_type = shift
+            break
+    
+    # If no current shift matches, assign to the next upcoming shift
+    if not shift_type:
+        upcoming_shifts = ShiftType.objects.filter(
+            is_active=True, 
+            start_time__gt=current_time
+        ).order_by('start_time')
+        if upcoming_shifts.exists():
+            shift_type = upcoming_shifts.first()
+        else:
+            # If no upcoming shifts today, use the first shift of the day
+            shift_type = ShiftType.objects.filter(is_active=True).order_by('start_time').first()
+    
+    if not shift_type:
+        return Response({'error': 'No active shifts available'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create or get shift assignment for today
+    assignment, created = DailyShiftAssignment.objects.get_or_create(
+        staff=staff,
+        assignment_date=date,
+        shift_type=shift_type,
+        defaults={
+            'assigned_by': 'kiosk_auto',
+            'override_reason': 'Auto-assigned during kiosk check-in'
+        }
+    )
+    
+    # Create or update attendance record
+    record, created = StaffAttendanceRecord.objects.get_or_create(
+        staff=staff,
+        attendance_date=date,
+        assigned_shift_type=shift_type,
+        defaults={
+            'created_by': 'kiosk',
+            'status': 'present'
+        }
+    )
+    
+    record.check_in_time = timezone.now()
+    record.status = 'present'
+    record.save()
+    
+    return Response({
+        'success': True,
+        'action': 'check_in',
+        'staff_name': staff.name,
+        'shift': shift_type.name,
+        'time': record.check_in_time,
+        'auto_assigned': created
+    })
+
+
+@api_view(['POST'])
+def kiosk_check_out(request):
+    pin = request.data.get('pin')
+    date = request.data.get('date', timezone.now().date())
+    
+    if not pin:
+        return Response({'error': 'PIN is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Find staff by PIN
+        staff = TeamMember.objects.get(pin=pin, is_active=True)
+    except TeamMember.DoesNotExist:
+        return Response({'error': 'Invalid PIN'}, status=status.HTTP_404_NOT_FOUND)
+    except TeamMember.MultipleObjectsReturned:
+        return Response({'error': 'Duplicate PIN found. Please contact admin.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Find current checked-in record
+    record = StaffAttendanceRecord.objects.filter(
+        staff=staff,
+        attendance_date=date,
+        check_in_time__isnull=False,
+        check_out_time__isnull=True
+    ).first()
+    
+    if not record:
+        return Response({'error': 'Not checked in'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    record.check_out_time = timezone.now()
+    record.save()
+    
+    return Response({
+        'success': True,
+        'action': 'check_out',
+        'staff_name': staff.name,
+        'shift': record.assigned_shift_type.name,
+        'time': record.check_out_time
     })

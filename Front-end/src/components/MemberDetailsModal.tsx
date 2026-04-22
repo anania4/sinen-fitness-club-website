@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Phone, Calendar, CreditCard, User, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Member } from '../types';
+import { API_BASE_URL } from '../config';
 
 interface Props {
   isOpen: boolean;
@@ -44,9 +45,24 @@ export const MemberDetailsModal: React.FC<Props> = ({ isOpen, onClose, member, o
           >
             {/* Header */}
             <div className="p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-orange-500/10 to-transparent">
-              <div>
-                <h3 className="text-2xl font-black text-white uppercase">{member.name}</h3>
-                <p className="text-sm text-gray-400 mt-1">Member ID: #{member.id}</p>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-zinc-800 border-2 border-orange-500/30 overflow-hidden flex-shrink-0">
+                  {member.profile_photo ? (
+                    <img 
+                      src={`${API_BASE_URL}${member.profile_photo}`} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-orange-500/10 text-orange-500 font-black text-xl">
+                      {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase">{member.name}</h3>
+                  <p className="text-sm text-gray-400 mt-1">Member ID: #{member.id}</p>
+                </div>
               </div>
               <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
                 <X className="w-6 h-6" />

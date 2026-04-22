@@ -2,6 +2,30 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { apiFetch } from './config';
+import { 
+  Phone, 
+  MapPin, 
+  Clock, 
+  Dumbbell, 
+  Users, 
+  Zap, 
+  CheckCircle2, 
+  MessageCircle,
+  Instagram,
+  Facebook,
+  Music,
+  Target,
+  ArrowRight,
+  ChevronRight,
+  X,
+  Star,
+  Award,
+  ShieldCheck,
+  Megaphone
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,29 +70,6 @@ const ServiceIcon = ({ title, className = "text-orange-500 w-16 h-16" }: { title
     default: return null;
   }
 };
-import { 
-  Phone, 
-  MapPin, 
-  Clock, 
-  Dumbbell, 
-  Users, 
-  Zap, 
-  CheckCircle2, 
-  MessageCircle,
-  Instagram,
-  Facebook,
-  Music,
-  Target,
-  ArrowRight,
-  ChevronRight,
-  X,
-  Star,
-  Award,
-  ShieldCheck,
-  Megaphone
-} from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
 
 /** Utility for tailwind class merging */
 function cn(...inputs: any[]) {
@@ -81,6 +82,7 @@ function Home() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -142,6 +144,31 @@ function Home() {
     };
 
     fetchAnnouncements();
+  }, []);
+
+  // Fetch team members from API
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const response = await apiFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/team/`);
+        if (response.ok) {
+          const data = await response.json();
+          const teamArray = Array.isArray(data) ? data : (data.results || []);
+          // Only show team members marked for frontend display
+          setTeamMembers(teamArray.filter((member: any) => member.show_on_frontend && member.is_active));
+        }
+      } catch (error) {
+        console.error('Failed to fetch team members:', error);
+        // Fallback to default team members
+        setTeamMembers([
+          { name: 'Coach Sami', role: 'Founder & Head Trainer', fitness_group: 'Strength & Conditioning', profile_photo: '/images/coach_sami_1.jpg' },
+          { name: 'Coach Sami', role: 'Lead Aerobics Instructor', fitness_group: 'Cardio & Group Energy', profile_photo: '/images/coach_sami_2.jpg' },
+          { name: 'Coach Sami', role: 'Boxing Specialist', fitness_group: 'Functional Combat', profile_photo: '/images/coach_sami_3.jpg' }
+        ]);
+      }
+    };
+
+    fetchTeamMembers();
   }, []);
 
   useEffect(() => {
@@ -637,27 +664,52 @@ function Home() {
           </div>
 
           <div className="flex overflow-x-auto lg:grid lg:grid-cols-3 gap-6 md:gap-12 pb-12 lg:pb-0 snap-x snap-mandatory no-scrollbar">
-            {[
-              { name: 'Coach Sami', role: 'Founder & Head Trainer', specialty: 'Strength & Conditioning', img: '/images/coach_sami_1.jpg' },
-              { name: 'Coach Sami', role: 'Lead Aerobics Instructor', specialty: 'Cardio & Group Energy', img: '/images/coach_sami_2.jpg' },
-              { name: 'Coach Sami', role: 'Boxing Specialist', specialty: 'Functional Combat', img: '/images/coach_sami_3.jpg' }
-            ].map((member, i) => (
-              <div key={i} className="group relative flex-shrink-0 w-[85vw] sm:w-[50vw] lg:w-full snap-center">
-                <div className="aspect-[3/4] rounded-[3rem] overflow-hidden border-4 border-zinc-800 group-hover:border-orange-500 transition-colors duration-500 relative">
-                  <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                  
-                  <div className="absolute bottom-8 left-8 right-8">
-                    <h4 className="text-3xl font-black uppercase italic tracking-tighter mb-1 leading-none">{member.name}</h4>
-                    <p className="text-orange-500 font-bold text-[10px] uppercase tracking-widest mb-4">{member.role}</p>
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full w-fit border border-white/10">
-                      <Award size={12} className="text-orange-500" />
-                      <span className="text-[9px] font-black uppercase tracking-widest">{member.specialty}</span>
+            {teamMembers.length > 0 ? (
+              teamMembers.map((member, i) => (
+                <div key={member.id || i} className="group relative flex-shrink-0 w-[85vw] sm:w-[50vw] lg:w-full snap-center">
+                  <div className="aspect-[3/4] rounded-[3rem] overflow-hidden border-4 border-zinc-800 group-hover:border-orange-500 transition-colors duration-500 relative">
+                    <img 
+                      src={member.profile_photo || `/images/coach_sami_${(i % 3) + 1}.jpg`} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                    
+                    <div className="absolute bottom-8 left-8 right-8">
+                      <h4 className="text-3xl font-black uppercase italic tracking-tighter mb-1 leading-none">{member.name}</h4>
+                      <p className="text-orange-500 font-bold text-[10px] uppercase tracking-widest mb-4">{member.role}</p>
+                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full w-fit border border-white/10">
+                        <Award size={12} className="text-orange-500" />
+                        <span className="text-[9px] font-black uppercase tracking-widest">{member.fitness_group}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              // Fallback to default team members if none are marked for frontend
+              [
+                { name: 'Coach Sami', role: 'Founder & Head Trainer', specialty: 'Strength & Conditioning', img: '/images/coach_sami_1.jpg' },
+                { name: 'Coach Sami', role: 'Lead Aerobics Instructor', specialty: 'Cardio & Group Energy', img: '/images/coach_sami_2.jpg' },
+                { name: 'Coach Sami', role: 'Boxing Specialist', specialty: 'Functional Combat', img: '/images/coach_sami_3.jpg' }
+              ].map((member, i) => (
+                <div key={i} className="group relative flex-shrink-0 w-[85vw] sm:w-[50vw] lg:w-full snap-center">
+                  <div className="aspect-[3/4] rounded-[3rem] overflow-hidden border-4 border-zinc-800 group-hover:border-orange-500 transition-colors duration-500 relative">
+                    <img src={member.img} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                    
+                    <div className="absolute bottom-8 left-8 right-8">
+                      <h4 className="text-3xl font-black uppercase italic tracking-tighter mb-1 leading-none">{member.name}</h4>
+                      <p className="text-orange-500 font-bold text-[10px] uppercase tracking-widest mb-4">{member.role}</p>
+                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full w-fit border border-white/10">
+                        <Award size={12} className="text-orange-500" />
+                        <span className="text-[9px] font-black uppercase tracking-widest">{member.specialty}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

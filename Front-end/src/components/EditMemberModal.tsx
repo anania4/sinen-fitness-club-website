@@ -20,6 +20,8 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
   const [expiryDate, setExpiryDate] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('pending');
   const [status, setStatus] = useState('active');
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState<any[]>([]);
 
@@ -33,6 +35,8 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
       setExpiryDate(member.expiry_date);
       setPaymentStatus(member.payment_status);
       setStatus(member.status);
+      setProfilePhoto(null);
+      setPhotoPreview(member.profile_photo ? `${API_BASE_URL}${member.profile_photo}` : null);
       
       apiFetch(`${API_BASE_URL}/api/plans/`)
         .then(res => res.json())
@@ -67,23 +71,33 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
     }
   }, [startDate, plan, plans]);
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfilePhoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!member) return;
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('phone', phone);
+      if (emergencyContact) formData.append('emergency_contact', emergencyContact);
+      formData.append('plan', plan);
+      formData.append('start_date', startDate);
+      formData.append('expiry_date', expiryDate);
+      formData.append('payment_status', paymentStatus);
+      formData.append('status', status);
+      if (profilePhoto) formData.append('profile_photo', profilePhoto);
+
       const res = await apiFetch(`${API_BASE_URL}/api/members/${member.id}/`, {
         method: 'PATCH',
-        body: JSON.stringify({ 
-          name, 
-          phone,
-          emergency_contact: emergencyContact || null,
-          plan, 
-          start_date: startDate,
-          expiry_date: expiryDate, 
-          payment_status: paymentStatus,
-          status 
-        }),
+        body: formData,
       });
       
       if (!res.ok) {
@@ -102,6 +116,13 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
       setLoading(false);
     }
   };
+
+  // Cleanup object URL
+  useEffect(() => {
+    return () => {
+      if (profilePhoto && photoPreview) URL.revokeObjectURL(photoPreview);
+    };
+  }, [profilePhoto, photoPreview]);
 
   return (
     <AnimatePresence>
@@ -122,6 +143,27 @@ export const EditMemberModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, m
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Profile Photo (Optional)</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-zinc-800 overflow-hidden border-2 border-white/10 flex-shrink-0">
+                      {photoPreview ? (
+                        <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-500">
+                          <span className="text-xs">No img</span>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      className="w-full px-4 py-3 rounded-2xl border border-white/10 bg-black/50 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-500/20 file:text-orange-500 hover:file:bg-orange-500/30"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Full Name *</label>
                   <input

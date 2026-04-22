@@ -131,7 +131,24 @@ export const MembersPage: React.FC = () => {
                   onClick={() => handleViewDetails(member)}
                   className="hover:bg-white/5 transition-colors cursor-pointer"
                 >
-                  <td className="px-6 py-4 text-white font-bold">{member.name}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden border border-white/10 flex-shrink-0">
+                        {member.profile_photo ? (
+                          <img 
+                            src={`${API_BASE_URL}${member.profile_photo}`} 
+                            alt={member.name} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-orange-500/10 text-orange-500 font-black text-xs">
+                            {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-white font-bold">{member.name}</span>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 text-gray-400">{member.plan}</td>
                   <td className="px-6 py-4 text-gray-400">{new Date(member.expiry_date).toLocaleDateString()}</td>
                   <td className="px-6 py-4">

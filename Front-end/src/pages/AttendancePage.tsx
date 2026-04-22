@@ -102,11 +102,20 @@ export const AttendancePage: React.FC = () => {
     try {
       const res = await apiFetch(`${API_BASE_URL}/api/attendance/check-in/`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ member_id: memberId }),
       });
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || 'Check-in failed');
+        let errorMsg = 'Check-in failed';
+        try {
+          const data = await res.json();
+          errorMsg = data.error || data.detail || data.message || 'Check-in failed';
+        } catch (e) {
+          // If JSON parsing fails, fallback to default
+        }
+        setError(errorMsg);
         return;
       }
       setSearchTerm('');

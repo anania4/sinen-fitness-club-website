@@ -187,12 +187,12 @@ All API responses handle both:
 - [ ] Test all modals
 - [ ] Test responsive design
 
-## Known Limitations
+## All Known Limitations Addressed
 
-1. **Settings API** - Not implemented yet (graceful fallback in place)
-2. **Telegram Integration** - Backend not implemented (UI ready)
-3. **Profile Photos** - Upload not implemented (model ready)
-4. **Search Functionality** - UI present but not connected
+- **Settings API**: Implemented single-instance model for handling global site settings.
+- **Telegram Integration**: Fully implemented backend automated reminders via management commands and API endpoints. 
+- **Profile Photos**: Implemented file upload directly to backend via FormData and media serving.
+- **Search Functionality**: Connected via frontend client-side filtering on all core tables (Members, Leads, Payments, Attendance).
 
 ## Pre-Push Commands
 

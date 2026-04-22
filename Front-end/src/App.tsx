@@ -13,6 +13,8 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AnnouncementsPage } from './pages/AnnouncementsPage';
 import { DailyPassesPage } from './pages/DailyPassesPage';
 import { AttendancePage } from './pages/AttendancePage';
+import StaffAttendancePage from './pages/StaffAttendancePage';
+import StaffKioskMode from './components/StaffKioskMode';
 import { LoginPage } from './pages/LoginPage';
 import AdminLayout from './AdminLayout';
 import { AuthProvider } from './contexts/AuthContext';
@@ -31,6 +33,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/kiosk" element={<StaffKioskMode onExit={() => window.location.href = '/'} />} />
         <Route path='/admin' element={
           <ProtectedRoute>
             <AdminLayout />
@@ -39,6 +42,7 @@ export default function App() {
             <Route index element={<Dashboard key={refreshTrigger} onRefresh={handleRefresh} />} />
               <Route path="members" element={<MembersPage />} />
               <Route path="attendance" element={<AttendancePage />} />
+              <Route path="staff-attendance" element={<StaffAttendancePage />} />
               <Route path="leads" element={<LeadsPage />} />
               <Route path="plans" element={<PlansPage />} />
               <Route path="payments" element={<PaymentsPage />} />
