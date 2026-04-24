@@ -12,9 +12,7 @@ import {
   User,
   Shield
 } from 'lucide-react';
-import { apiFetch } from '../config';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { apiFetch, API_BASE_URL } from '../config';
 
 interface StaffMember {
   id: number;
@@ -126,7 +124,7 @@ const StaffKioskMode: React.FC<KioskModeProps> = ({ onExit }) => {
     
     setLoading(true);
     try {
-      const res = await apiFetch(`${API_BASE_URL}/api/staff-attendance/kiosk-check-in/`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/kiosk/check-in/`, {
         method: 'POST',
         body: JSON.stringify({ 
           pin: pin,
@@ -158,7 +156,7 @@ const StaffKioskMode: React.FC<KioskModeProps> = ({ onExit }) => {
     
     setLoading(true);
     try {
-      const res = await apiFetch(`${API_BASE_URL}/api/staff-attendance/kiosk-check-out/`, {
+      const res = await apiFetch(`${API_BASE_URL}/api/kiosk/check-out/`, {
         method: 'POST',
         body: JSON.stringify({ 
           pin: pin,
@@ -313,9 +311,9 @@ const StaffKioskMode: React.FC<KioskModeProps> = ({ onExit }) => {
                     <button
                       onClick={handleCheckOut}
                       disabled={loading}
-                      className="w-full py-6 px-8 bg-red-500 text-white font-black text-2xl uppercase rounded-3xl hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-3"
+                      className="w-full py-3 px-5 bg-red-500 text-white font-black text-base uppercase rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      <LogOut className="w-8 h-8" />
+                      <LogOut className="w-5 h-5" />
                       {loading ? 'Checking Out...' : 'Check Out'}
                     </button>
                   </div>

@@ -643,6 +643,7 @@ class StaffAttendanceViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def verify_staff_pin(request):
     pin = request.data.get('pin')
     
@@ -668,6 +669,7 @@ def verify_staff_pin(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def kiosk_check_in(request):
     pin = request.data.get('pin')
     date = request.data.get('date', timezone.now().date())
@@ -756,6 +758,7 @@ def kiosk_check_in(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def kiosk_check_out(request):
     pin = request.data.get('pin')
     date = request.data.get('date', timezone.now().date())

@@ -104,6 +104,9 @@ const StaffAttendancePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [selectedStaffId, setSelectedStaffId] = useState<number>('');
+  const [selectedShiftId, setSelectedShiftId] = useState<number>('');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -240,6 +243,31 @@ const StaffAttendancePage: React.FC = () => {
     return todayRecords.some(record => 
       record.staff === staffId && record.check_in_time && !record.check_out_time
     );
+  };
+
+  const handleCreateAssignment = async (staffId: number, shiftTypeId: number) => {
+    try {
+      const res = await apiFetch(`${API_BASE_URL}/api/shift-assignments/`, {
+        method: 'POST',
+        body: JSON.stringify({
+          staff: staffId,
+          shift_type: shiftTypeId,
+          assignment_date: selectedDate,
+          assigned_by: 'admin'
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to create assignment');
+        return;
+      }
+
+      fetchData();
+      setShowAssignmentModal(false);
+    } catch (err) {
+      setError('Network error. Please try again.');
+    }
   };
 
   if (showKiosk) {
@@ -564,7 +592,10 @@ const StaffAttendancePage: React.FC = () => {
             <h2 className="font-black text-white uppercase tracking-tight">
               Shift Assignments for {selectedDate}
             </h2>
-            <button className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-black font-bold text-xs uppercase rounded-full hover:bg-orange-600 transition-colors">
+            <button 
+              onClick={() => setShowAssignmentModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-black font-bold text-xs uppercase rounded-full hover:bg-orange-600 transition-colors"
+            >
               <Plus className="w-4 h-4" />
               Add Assignment
             </button>
@@ -723,6 +754,81 @@ const StaffAttendancePage: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Assignment Modal */}
+      {showAssignmentModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-zinc-900 rounded-2xl border border-white/10 p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-white">Add Shift Assignment</h3>
+              <button
+                onClick={() => setShowAssignmentModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-2">Staff Member</label>
+                <select
+                  value={selectedStaffId}
+                  onChange={(e) => setSelectedStaffId(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-zinc-800 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                >
+                  <option value="">Select staff member...</option>
+                  {staffMembers.map(staff => (
+                    <option key={staff.id} value={staff.id}>
+                      {staff.name} - {staff.role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-2">Shift Type</label>
+                <select
+                  value={selectedShiftId}
+                  onChange={(e) => setSelectedShiftId(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-zinc-800 text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                >
+                  <option value="">Select shift...</option>
+                  {shiftTypes.filter(shift => shift.is_active).map(shift => (
+                    <option key={shift.id} value={shift.id}>
+                      {shift.name} ({formatShiftTime(shift.start_time)} - {formatShiftTime(shift.end_time)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowAssignmentModal(false);
+                    setSelectedStaffId(0);
+                    setSelectedShiftId(0);
+                  }}
+                  className="flex-1 px-4 py-3 border border-white/20 text-gray-400 font-bold rounded-xl hover:bg-white/5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedStaffId && selectedShiftId) {
+                      handleCreateAssignment(selectedStaffId, selectedShiftId);
+                    }
+                  }}
+                  disabled={!selectedStaffId || !selectedShiftId}
+                  className="flex-1 px-4 py-3 bg-orange-500 text-black font-black rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create Assignment
+                </button>
+              </div>
             </div>
           </div>
         </div>
