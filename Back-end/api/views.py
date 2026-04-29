@@ -609,7 +609,37 @@ class StaffAttendanceViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Already checked out'}, status=status.HTTP_400_BAD_REQUEST)
         
         record.check_out_time = timezone.now()
-        record.status = 'present'  # Will be updated by status calculation logic
+        
+        # Calculate status based on check-in/check-out times and shift
+        try:
+            shift_type = record.assigned_shift_type
+            if shift_type:
+                # Get shift times for the attendance date
+                from datetime import datetime, time
+                attendance_date = record.attendance_date
+                
+                # Parse shift times
+                shift_start = datetime.strptime(f"{attendance_date} {shift_type.start_time}", "%Y-%m-%d %H:%M:%S")
+                shift_end = datetime.strptime(f"{attendance_date} {shift_type.end_time}", "%Y-%m-%d %H:%M:%S")
+                
+                # Check if late (checked in after shift start + grace period)
+                grace_period = timezone.timedelta(minutes=shift_type.grace_period_minutes)
+                if record.check_in_time > shift_start + grace_period:
+                    record.status = 'late'
+                # Check if early leave (checked out before shift end)
+                elif record.check_out_time < shift_end:
+                    record.status = 'early_leave'
+                # Check if excessive duration (worked much longer than shift)
+                elif (record.check_out_time - record.check_in_time) > (shift_end - shift_start) * 1.5:
+                    record.status = 'excessive_duration'
+                else:
+                    record.status = 'present'
+            else:
+                record.status = 'present'
+        except Exception as e:
+            # Fallback to present if status calculation fails
+            record.status = 'present'
+        
         record.save()
         
         return Response(StaffAttendanceRecordSerializer(record).data)
@@ -786,6 +816,37 @@ def kiosk_check_out(request):
         return Response({'error': 'Not checked in'}, status=status.HTTP_400_BAD_REQUEST)
     
     record.check_out_time = timezone.now()
+    
+    # Calculate status based on check-in/check-out times and shift
+    try:
+        shift_type = record.assigned_shift_type
+        if shift_type:
+            # Get shift times for the attendance date
+            from datetime import datetime, time
+            attendance_date = record.attendance_date
+            
+            # Parse shift times
+            shift_start = datetime.strptime(f"{attendance_date} {shift_type.start_time}", "%Y-%m-%d %H:%M:%S")
+            shift_end = datetime.strptime(f"{attendance_date} {shift_type.end_time}", "%Y-%m-%d %H:%M:%S")
+            
+            # Check if late (checked in after shift start + grace period)
+            grace_period = timezone.timedelta(minutes=shift_type.grace_period_minutes)
+            if record.check_in_time > shift_start + grace_period:
+                record.status = 'late'
+            # Check if early leave (checked out before shift end)
+            elif record.check_out_time < shift_end:
+                record.status = 'early_leave'
+            # Check if excessive duration (worked much longer than shift)
+            elif (record.check_out_time - record.check_in_time) > (shift_end - shift_start) * 1.5:
+                record.status = 'excessive_duration'
+            else:
+                record.status = 'present'
+        else:
+            record.status = 'present'
+    except Exception as e:
+        # Fallback to present if status calculation fails
+        record.status = 'present'
+    
     record.save()
     
     return Response({
@@ -793,5 +854,6 @@ def kiosk_check_out(request):
         'action': 'check_out',
         'staff_name': staff.name,
         'shift': record.assigned_shift_type.name,
-        'time': record.check_out_time
+        'time': record.check_out_time,
+        'status': record.status
     })

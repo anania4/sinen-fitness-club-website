@@ -182,16 +182,21 @@ const StaffAttendancePage: React.FC = () => {
   };
 
   const handleCheckOut = async (recordId: number) => {
+    setError('');
     try {
       const res = await apiFetch(`${API_BASE_URL}/api/staff-attendance/${recordId}/check-out/`, {
         method: 'POST',
       });
       
-      if (res.ok) {
-        fetchData();
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Check-out failed');
+        return;
       }
+      
+      fetchData();
     } catch (err) {
-      console.error('Error checking out:', err);
+      setError('Network error. Please try again.');
     }
   };
 
